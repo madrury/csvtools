@@ -1,0 +1,35 @@
+#! /bin/bash
+
+DELIM=','
+while getopts h?d:f:c:p: OPT; do
+    case $OPT in
+        \?|h)
+            echo "csv-grep: select rows from a csv acocrding to a pattern."
+            echo "useage:"
+            echo "  csv-grep -f <delimited file> [-d <delim>]"
+            echo "           -c <column name> -p <pattern>"
+            exit 0
+            ;;
+        d)
+            DELIM=$OPTARG
+            ;;
+        f)
+            FILE=$OPTARG
+            ;;
+        c)
+            COL=$OPTARG
+            ;;
+        p)
+            PAT=$OPTARG
+            ;;
+    esac
+done
+
+COLIDX=$(csv-getcolidx -f $FILE -d $DELIM -c $COL)
+PATTERN="^\($PAT\)"
+echo "PATTERN: $PATTERN"
+{ cat $FILE | head -1 ; \
+  paste <(cat $FILE | tail -n +2 | cut -d $DELIM -f $COLIDX) <(cat $FILE) \
+    | grep $PATTERN \
+    | cut -f 2 ; \
+}

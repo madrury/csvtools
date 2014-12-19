@@ -1,0 +1,2 @@
+#! /bin/bash
+tail -n +2 $1 | cut -d, -f`head -1 $1 | sed "s/,/\n/g" | grep -n "\b$2\b" | cut -d: -f1` | sort | uniq -c

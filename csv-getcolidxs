@@ -1,0 +1,29 @@
+#! /bin/bash
+
+# Parse command line args
+DELIM=','
+while getopts h?f:d:c: OPT; do
+    case $OPT in
+        \?|h)
+            echo "csv-getcolidxs:  Get the indices of multiple columns in a delimited file."
+            echo "useage:"
+            echo "  csv-getcolidxs -f <delimited file> [-d <delim>] <column names>"
+            exit 0
+            ;;
+        d)
+            DELIM=$OPTARG
+            ;;
+        f)
+            FILE=$OPTARG
+            ;;
+    esac
+done
+
+# Shift the argument pointer so that the passed coumns are stored in $1, $2, etc
+shift $(($OPTIND - 1))
+
+out_str=""
+for i in ${@:1}; do
+  out_str="$out_str,$(csv-getcolidx -d $DELIM -f $FILE -c $i)"
+done;
+echo $out_str | sed "s/,//"

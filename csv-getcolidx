@@ -1,0 +1,25 @@
+#! /bin/bash
+
+# Parse command line args
+DELIM=','
+while getopts h?f:d:c: OPT; do
+    case $OPT in
+        \?|h)
+            echo "csv-getcolidx:  Get the index of a column in a delimited file."
+            echo "useage:"
+            echo "  csv-getcolidx -f <delimited file> -c <column name> [-d <delim>]"
+            exit 0
+            ;;
+        d)
+            DELIM=$OPTARG
+            ;;
+        f)
+            FILE=$OPTARG
+            ;;
+        c)
+            COL=$OPTARG
+            ;;
+    esac
+done
+
+head -1 $FILE | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1 

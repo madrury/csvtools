@@ -1,0 +1,2 @@
+- Add handling of headers in seperate files.
+- Allow parsing of stdin so you can pipe these together.
