@@ -1,0 +1,34 @@
+#! /bin/bash
+
+QUO='"'
+while getopts h?d:n:q:f: OPT; do
+    case $OPT in
+        \?|h)
+            echo "csv-ch-delim: Change the delimiter in a file."
+            echo "useage:"
+            echo "  csv-chdelim -f <file> -d <delimiter> -n <new dilimiter>"
+            echo "              [-q <quoting char>]"
+            exit 0
+            ;;
+        d)
+            DELIM=$OPTARG
+            ;;
+        n)
+            NEWDELIM=$OPTARG
+            ;;
+        f)
+            FILE=$OPTARG
+            ;;
+        q)
+            QUO=$OPTARG
+            ;;
+    esac
+done
+
+if [[ $QUO == '"' ]]; then
+   ./bin/chdelim $FILE $DELIM $NEWDELIM '"'
+elif [[ $QUO == "'" ]]; then
+   ./bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "'"
+else
+   ./bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "$QUO"
+fi

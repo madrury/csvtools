@@ -1,2 +1,2 @@
 chdelim:
-	gcc -o csv-chdelim chdelim.c
+	gcc -o bin/chdelim src/chdelim.c
