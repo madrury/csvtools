@@ -22,4 +22,12 @@ while getopts h?f:d:c: OPT; do
     esac
 done
 
-head -1 $FILE | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1 
+COLIDX=$(head -1 $FILE | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1)
+
+if [[ $COLIDX == '' ]]; then
+    echo "csv-getcolidx: Column $COL not found.  Terminating." >&2
+    exit 1
+fi
+
+echo "$COLIDX - 1" | bc
+exit 0

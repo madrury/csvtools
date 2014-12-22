@@ -23,7 +23,16 @@ done
 shift $(($OPTIND - 1))
 
 out_str=""
-for i in ${@:1}; do
-  out_str="$out_str,$(csv-getcolidx -d $DELIM -f $FILE -c $i)"
+for COLNM in ${@:1}; do
+  COLIDX=$(csv-getcolidx -d $DELIM -f $FILE -c $COLNM)
+
+  if [[ $? != 0 ]]; then
+      echo "csv-getcolidxs: Field $COLNM not found, terminating."
+      exit 1
+  fi
+
+  out_str="$out_str,$COLIDX"
 done;
-echo $out_str | sed "s/,//"
+
+echo $out_str | sed "s/,//" | sed "s/,/ /g"
+exit 0
