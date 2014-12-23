@@ -135,5 +135,7 @@ int main(int argc, char* argv[]) {
             printf(line);
         }
     }
-     return 0;
+
+    free(args);
+    return 0;
 }

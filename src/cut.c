@@ -161,5 +161,7 @@ int main(int argc, char* argv[]) {
         process_line(outline, line, line_len, args);
         printf(outline);
     }
+
+    free(args);
     exit(EXIT_SUCCESS);
 }
