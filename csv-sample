@@ -6,7 +6,7 @@ while getopts h?d:f:p: OPT; do
         \?|h)
             echo "csv-sample: Randomly sample a proportion of a data set."
             echo "useage:"
-            echo "  csv-getcolidxs -f <delimited file> [-d <delim>] -p <proportion>"
+            echo "  csv-sample -f <delimited file> [-d <delim>] -p <proportion>"
             exit 0
             ;;
         d)
