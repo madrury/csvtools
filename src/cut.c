@@ -16,6 +16,7 @@ typedef struct {
     FILE* csv;
 } arguments;
 
+
 // Messages for the user.
 void show_usage() {
     printf("usage:\n");
@@ -92,6 +93,7 @@ void process_line(char outline[], char* line, int len,
     int in_output_field = 0;         // Are we in a field intended for output?
     int in_quotes = 0;               // Are we in a quoted field?
     char chr;                        // Current char being processed.
+    char prev_ch = '\0';             // Previous char, to check for escapes.
     
     // Is the first field an output field?
     if(next_field == 0) {
@@ -102,11 +104,14 @@ void process_line(char outline[], char* line, int len,
         chr = line[i];
         // Is this a quoting char?
         // If so: 
-        //   - Change state of machine to inside quotes. 
+        //   - Change state of machine to inside quotes if this quote char
+        //     is not escaped. 
         //   - Check if we are in an output field, if so, output the quoting
         //     char because we are outputing the field.
         if(chr == quo) {
-            in_quotes = 1 - in_quotes;
+            if(prev_ch != '\\') {
+                in_quotes = 1 - in_quotes;
+            }
             if(in_output_field) {
                 outline[outline_p++] = chr;
             }

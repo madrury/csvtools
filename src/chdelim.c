@@ -33,10 +33,14 @@ int main(int argc, char* argv[]){
     char quote_char = *argv[4];
 
     char ch;
+    char prev_ch = '\0';
     int inside_quote = 0;
     while((ch = getc(csv)) != EOF) {
         if(ch == quote_char) {
-            inside_quote = 1 - inside_quote;
+            // Check if this quote is escaped.
+            if(prev_ch != '\\') {
+                inside_quote = 1 - inside_quote;
+            }
             putchar(ch);
         }
         else if((ch == old_delim) && (inside_quote == 0)) {
@@ -45,6 +49,7 @@ int main(int argc, char* argv[]){
         else {
             putchar(ch);
         }
+        prev_ch = ch;
     }
     exit(EXIT_SUCCESS);
 }
