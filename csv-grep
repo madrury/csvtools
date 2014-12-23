@@ -1,17 +1,21 @@
 #! /bin/bash
 
 DELIM=','
+QUO='"'
 while getopts h?d:f:c:p: OPT; do
     case $OPT in
         \?|h)
             echo "csv-grep: select rows from a csv acocrding to a pattern."
             echo "useage:"
-            echo "  csv-grep -f <delimited file> [-d <delim>]"
+            echo "  csv-grep -f <delimited file> [-d <delim>] [-q <quoting char>]"
             echo "           -c <column name> -p <pattern>"
             exit 0
             ;;
         d)
             DELIM=$OPTARG
+            ;;
+        q)
+            QUO=$OPTARG
             ;;
         f)
             FILE=$OPTARG
@@ -20,16 +24,27 @@ while getopts h?d:f:c:p: OPT; do
             COL=$OPTARG
             ;;
         p)
-            PAT=$OPTARG
+            PATTERN=$OPTARG
             ;;
     esac
 done
 
 COLIDX=$(csv-getcolidx -f $FILE -d $DELIM -c $COL)
-PATTERN="^\($PAT\)"
-echo "PATTERN: $PATTERN"
-{ cat $FILE | head -1 ; \
-  paste <(cat $FILE | tail -n +2 | cut -d $DELIM -f $COLIDX) <(cat $FILE) \
-    | grep $PATTERN \
-    | cut -f 2 ; \
-}
+if [[ $? != 0 ]]; then
+    exit 1
+fi
+
+# Call the binary.
+if [[ $QUO == '"' ]]; then
+    { cat $FILE | head -1 ; \
+      ./bin/grep $FILE $DELIM '"' $COLIDX $PATTERN
+    }
+elif [[ $QUO == "'" ]]; then
+    { cat $FILE | head -1 ; \
+      ./bin/grep $FILE $DELIM "'" $COLIDX $PATTERN
+    }
+else
+    { cat $FILE | head -1 ; \
+      ./bin/grep $FILE $DELIM $QUO $COLIDX $PATTERN
+    }
+fi
