@@ -1,3 +1,12 @@
+/* cut:
+ *   Output a subset of columns in a csv.
+ *
+ * usage:
+ *   cut <file> <delim> <quoting char> <field 1 idx> ... <field n idx>
+ *
+ * This program is not intended to be called directly, see instead the
+ * interface exposed in csv-cut.
+ */
 # define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
@@ -5,27 +14,6 @@
 
 #define MAX_N_FIELDS 2000
 #define MAX_LINE_LEN 2000*50
-
-
-// Structure for holding the command line arguments
-typedef struct {
-    char delim;
-    char quo;
-    int field_idxs[MAX_N_FIELDS];
-    int n_fields;
-    FILE* csv;
-} arguments;
-
-
-// Messages for the user.
-void show_usage() {
-    printf("usage:\n");
-    printf("  cut <file> <delim> <quoting char> <field 1 idx> ... <field n idx>\n");
-}
-void show_help() {
-    printf("cut: Select a subset of fields in a csv.\n");
-}
-
 
 int check_increasing(int a[], int a_len) {
 /* Check if an array of integers is sorted in increasing order. */
@@ -39,16 +27,25 @@ int check_increasing(int a[], int a_len) {
     return 1;
 }
 
+// Structure for holding the command line arguments
+typedef struct {
+    char delim;                   // Single char delimiter.
+    char quo;                     // Single char for quoting.
+    int field_idxs[MAX_N_FIELDS]; // Integer array contianing indices of fields
+                                  // to output.
+    int n_fields;                 // Total number of fields to output.
+    FILE* csv;                    // Connection to csv file.
+} arguments;
+
 
 arguments* parse_args(int argc, char* argv[]) {
 /* Parse the command line argument array into a convienent structure. */
     arguments* args = calloc(1, sizeof(arguments));
     
-    // Single char arguments
     args->delim = *argv[2];
     args->quo = *argv[3];
-
-    // Parse array of integers passed as cl args into iinteger array.
+    // Parse sequence of integers passed as command line arguments into an
+    // integer array.
     args->n_fields = argc - 4;
     if(args->n_fields > MAX_N_FIELDS) {
        raise_too_many_fields_error();
@@ -59,19 +56,17 @@ arguments* parse_args(int argc, char* argv[]) {
     if(!check_increasing(args->field_idxs, args->n_fields)) {
         raise_not_increasing_error();
     }
-
     // Open a connection to the delimited file.
     FILE* csv = fopen(argv[1], "r");
     if(csv == NULL) {
         raise_file_error();
     }
     args->csv = csv;
-
     return args;
 }
 
-void process_line(char outline[], char* line, int len, 
-                  int field_idxs[], int n_fields, char delim, char quo) {
+
+void process_line(char outline[], char* line, int len, arguments* args) {
 /* A state machine for subsetting a single line of a csv.
  *
  * Arguments:
@@ -80,16 +75,12 @@ void process_line(char outline[], char* line, int len,
  *            be available to the caller after the function returns.
  *   line: A string containing the contents of the line to be processed.
  *   len: The number of chars in line.
- *   field_idxs: An integer array containing the indexes for the requested
- *               fields, guarenteed to be in strictly increasing order.
- *   n_fields: The length of field_idxs.
- *   delim: The delimiting character in the file.
- *   quo: the quoting character in the file.
+ *   args: Structure containing the parameters recieved from the command line.
  */
     int outline_p = 0;               // Current index into outline array.
     int field_idxs_p = 0;            // Current index into field_idxs array.
     int field_idx = 0;               // Index of current field being processed. 
-    int next_field = field_idxs[0];  // The next field to be output.
+    int next_field = args->field_idxs[0];  // The next field to be output.
     int in_output_field = 0;         // Are we in a field intended for output?
     int in_quotes = 0;               // Are we in a quoted field?
     char chr;                        // Current char being processed.
@@ -100,6 +91,8 @@ void process_line(char outline[], char* line, int len,
         in_output_field = 1;
     }
 
+    // Search through the line for the requested fields and write their
+    // contents into a buffer.
     for(int i = 0; i < len; i++) {
         chr = line[i];
         // Is this a quoting char?
@@ -108,7 +101,7 @@ void process_line(char outline[], char* line, int len,
         //     is not escaped. 
         //   - Check if we are in an output field, if so, output the quoting
         //     char because we are outputing the field.
-        if(chr == quo) {
+        if(chr ==args->quo) {
             if(prev_ch != '\\') {
                 in_quotes = 1 - in_quotes;
             }
@@ -124,11 +117,11 @@ void process_line(char outline[], char* line, int len,
         //   - Increment the state tracking the next field to look for.
         //   - If the subsequent field is an output field, set the state to 
         //     reflect this.
-        else if((chr == delim) && !in_quotes) {
+        else if((chr == args->delim) && !in_quotes) {
             // Wrap up if we are in an output field
             if(in_output_field) {
                 outline[outline_p++] = chr;
-                next_field = field_idxs[++field_idxs_p];
+                next_field = args->field_idxs[++field_idxs_p];
                 in_output_field = 0;
             }
             // Increment what field we are looking for.
@@ -137,7 +130,7 @@ void process_line(char outline[], char* line, int len,
                 in_output_field = 1;
             }
         }
-        // Is this just a boring old char, or a delimiter in a quoted field?
+        // Is this just a boring old char or a delimiter in a quoted field?
         // If so:
         //   - If we are in an output field, output the char.
         else {
@@ -165,9 +158,8 @@ int main(int argc, char* argv[]) {
 
     // Process the csv line by line.
     while((line_len = getline(&line, &len, args->csv)) != EOF) {
-        process_line(outline, line, line_len, 
-                     args->field_idxs, args->n_fields, args->delim, args->quo);
-        printf("%s", outline);
+        process_line(outline, line, line_len, args);
+        printf(outline);
     }
     exit(EXIT_SUCCESS);
 }
