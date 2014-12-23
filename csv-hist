@@ -1,2 +1,30 @@
 #! /bin/bash
-tail -n +2 $1 | cut -d, -f`head -1 $1 | sed "s/,/\n/g" | grep -n "\b$2\b" | cut -d: -f1` | sort | uniq -c
+DELIM=','
+QUO='"'
+while getopts h?d:f:c:p: OPT; do
+    case $OPT in
+        \?|h)
+            echo "csv-hist: Make a frequency table from columns in a csv."
+            echo "useage:"
+            echo "  csv-grep -f <delimited file> [-d <delim>] [-q <quoting char>]"
+            echo "           <column 1 name> ... <column n name>                 "
+            exit 0
+            ;;
+        d)
+            DELIM=$OPTARG
+            ;;
+        q)
+            QUO=$OPTARG
+            ;;
+        f)
+            FILE=$OPTARG
+            ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+
+csv-cut -f $FILE -d $DELIM -q $QUO ${@:1} \
+  | tail -n +2 \
+  | sort \
+  | uniq -c

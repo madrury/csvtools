@@ -91,3 +91,11 @@ Differences:
     num,greeting,int
     1,"Hello.",1
     1,"Hello, \"Matt\", if that is your real name!",4
+
+Frequency tables:
+
+    $csv-hist -f example.csv num int
+    1 0,2
+    1 0,3
+    1 1,1
+    1 1,4
