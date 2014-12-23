@@ -1,27 +1,17 @@
+/* chdelim:
+ *   Change the delimiter in delimited file.
+ *
+ * usage:
+ *   chdelim <file> <current delim> <new delim> <grouping char>
+ *
+ * This program is not intended to be called directly, see instead the 
+ * interface exposed in csv-chdelim.
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include "errors.h"
 
-void show_usage() {
-    printf("usage:\n");
-    printf("  csv-chdelim <file> <old delim> <new delim> <grouping char>\n");
-}
-
-void show_help() {
-    printf("chdelim: Change the delimiter in a delimited file.\n");
-    show_usage();
-}
-
 int main(int argc, char* argv[]){
-
-    if(argc == 2) {
-        show_help();
-        exit(EXIT_SUCCESS);
-    }
-    else if(argc != 5) {
-        show_usage();
-        raise_argument_error();
-    }
 
     FILE* csv = fopen(argv[1], "r");
     if(csv == NULL) {
