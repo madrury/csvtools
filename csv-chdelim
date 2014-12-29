@@ -1,4 +1,5 @@
 #! /bin/bash
+SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 QUO='"'
 while getopts h?d:n:q:f: OPT; do
@@ -26,9 +27,9 @@ while getopts h?d:n:q:f: OPT; do
 done
 
 if [[ $QUO == '"' ]]; then
-   ./bin/chdelim $FILE $DELIM $NEWDELIM '"'
+   $SRCDIR/bin/chdelim $FILE $DELIM $NEWDELIM '"'
 elif [[ $QUO == "'" ]]; then
-   ./bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "'"
+   $SRCDIR/bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "'"
 else
-   ./bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "$QUO"
+   $SRCDIR/bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "$QUO"
 fi

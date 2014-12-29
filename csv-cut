@@ -1,4 +1,5 @@
 #! /bin/bash
+SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
 QUO='"'
@@ -43,9 +44,9 @@ fi
 
 # Call the binary.
 if [[ $QUO == '"' ]]; then
-   ./bin/cut $FILE $DELIM '"' $COLIDXS
+   $SRCDIR/bin/cut $FILE $DELIM '"' $COLIDXS
 elif [[ $QUO == "'" ]]; then
-   ./bin/cut $FILE $DELIM "'" $COLIDXS
+   $SRCDIR/bin/cut $FILE $DELIM "'" $COLIDXS
 else
-   ./bin/cut $FILE $DELIM $QUO $COLIDXS
+   $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS
 fi
