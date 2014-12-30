@@ -1,7 +1,7 @@
 #! /bin/bash
 DELIM=','
 QUO='"'
-while getopts h?d:f:c:p: OPT; do
+while getopts h?d:f:q:r: OPT; do
     case $OPT in
         \?|h)
             echo "csv-hist: Make a frequency table from columns in a csv."
@@ -19,6 +19,9 @@ while getopts h?d:f:c:p: OPT; do
         f)
             FILE=$OPTARG
             ;;
+        r)
+            HEADERFILE=$OPTARG
+            ;;
     esac
 done
 
@@ -27,6 +30,15 @@ if [[ $FILE == '' ]]; then
     exit 1
 fi
 
+# Header argument is optional, if it exists, we construct the 
+# corresponding argument string to csv-cut.
+if [[ $HEADERFILE != '' ]]; then
+    HEADERARG="-r $HEADERFILE"
+else
+    HEADERARG=""
+fi
+
+# Pull off the array of column names|indices
 shift $(($OPTIND - 1))
 COLS="${@:1}"
 if [[ $COLS == '' ]]; then
@@ -34,7 +46,7 @@ if [[ $COLS == '' ]]; then
     exit 1
 fi
 
-csv-cut -f $FILE -d $DELIM -q $QUO $COLS \
+csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLS \
   | tail -n +2 \
   | sort \
   | uniq -c

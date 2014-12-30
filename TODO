@@ -1,4 +1,3 @@
 - Allow parsing of stdin so you can pipe these together.
-- Check for required args.
 - make csv-diff into csv-set with various options.
 - verbose help.

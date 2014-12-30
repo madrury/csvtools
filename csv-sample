@@ -1,7 +1,7 @@
 #! /bin/bash
 
 DELIM=','
-while getopts h:f:p: OPT; do
+while getopts h:f:r:p: OPT; do
     case $OPT in
         \?|h)
             echo "csv-sample: Randomly sample a proportion of a data set."
@@ -11,6 +11,9 @@ while getopts h:f:p: OPT; do
             ;;
         f)
             FILE=$OPTARG
+            ;;
+        r)
+            HEADERFILE=$OPTARG
             ;;
         p)
             PROP=$OPTARG
@@ -27,9 +30,22 @@ if [[ $PROP == '' ]]; then
     exit 1
 fi
 
-NREC=$(cat $FILE | tail -n +2 | wc -l)
+# Count the number of records in the file, then offset by one if
+# the header is included.
+NREC=$(cat $FILE | wc -l)
+if [[ $HEADERFILE == '' ]]; then
+    NREC=$(echo "$NREC - 1" | bc -l)
+fi
+
+# cut -d. -f1 == floor
 NTOTAKE=$(echo "$NREC * $PROP" | bc -l | cut -d. -f1)
 
-{ cat $FILE | head -1 ; \
-  cat $FILE | tail -n +2 | shuf -n $NTOTAKE ; \
-}
+# Output the header if its neccessary
+if [[ $HEADERFILE == '' ]]; then
+    TAILARG='+2'
+    cat $FILE | head -1
+else
+    TAILARG='+1'
+fi
+
+cat $FILE | tail -n $TAILARG | shuf -n $NTOTAKE
