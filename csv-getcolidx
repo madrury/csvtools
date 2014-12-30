@@ -22,6 +22,15 @@ while getopts h?f:d:c: OPT; do
     esac
 done
 
+if [[ $FILE == '' ]]; then
+    echo "csv-getcolidx: argument -f required" >&2
+    exit 1
+fi
+if [[ $COL == '' ]]; then
+    echo "csv-getcolidx: argument -c required" >&2
+    exit 1
+fi
+
 COLIDX=$(head -1 $FILE | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1)
 
 if [[ $COLIDX == '' ]]; then
@@ -29,5 +38,6 @@ if [[ $COLIDX == '' ]]; then
     exit 1
 fi
 
+# grep -n counts starting at one, we require starting at 0.
 echo "$COLIDX - 1" | bc
 exit 0

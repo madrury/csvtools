@@ -1,3 +1,4 @@
-- Add handling of headers in seperate files.
 - Allow parsing of stdin so you can pipe these together.
-- CSV grep should not find the header.
+- Check for required args.
+- make csv-diff into csv-set with various options.
+- verbose help.

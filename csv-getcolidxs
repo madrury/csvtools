@@ -1,6 +1,5 @@
 #! /bin/bash
 
-# Parse command line args
 DELIM=','
 while getopts h?f:d:c: OPT; do
     case $OPT in
@@ -19,20 +18,34 @@ while getopts h?f:d:c: OPT; do
     esac
 done
 
+if [[ $FILE == '' ]]; then
+    echo "csv-getcolidxs: Argument -f required." >&2
+    exit 1
+fi
+
 # Shift the argument pointer so that the passed coumns are stored in $1, $2, etc
 shift $(($OPTIND - 1))
 
-out_str=""
-for COLNM in ${@:1}; do
-  COLIDX=$(csv-getcolidx -d $DELIM -f $FILE -c $COLNM)
+COLS="${@:1}"
+if [[ $COLS == '' ]]; then
+    echo "csv-cut: No columns to cut" >&2
+    exit 1
+fi
+OUTSTR=""
 
+# Iteratively get the index of the columns requested, and join them into
+# a comma seperated string.
+for COLNM in $COLS; do
+  COLIDX=$(csv-getcolidx -d $DELIM -f $FILE -c $COLNM)
   if [[ $? != 0 ]]; then
       echo "csv-getcolidxs: Field $COLNM not found, terminating."
       exit 1
   fi
-
-  out_str="$out_str,$COLIDX"
+  OUTSTR="$OUTSTR,$COLIDX"
 done;
 
-echo $out_str | sed "s/,//" | sed "s/,/ /g"
+# Replace the beginning comma with nothing (fencepost problem), replace
+# all remaining commas with spaces to make a nice argument list for a 
+# command line call.
+echo $OUTSTR | sed "s/,//" | sed "s/,/ /g"
 exit 0

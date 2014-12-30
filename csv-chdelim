@@ -26,6 +26,19 @@ while getopts h?d:n:q:f: OPT; do
     esac
 done
 
+if [[ $FILE == '' ]]; then
+    echo "csv-chdelim: Argument -f required." >&2
+    exit 1
+fi
+if [[ $DELIM == '' ]]; then
+    echo "csv-chdelim: Argument -d required." >&2
+    exit 1
+fi
+if [[ $NEWDELIM == '' ]]; then
+    echo "csv-chdelim: Argument -n required." >&2
+    exit 1
+fi
+
 if [[ $QUO == '"' ]]; then
    $SRCDIR/bin/chdelim $FILE $DELIM $NEWDELIM '"'
 elif [[ $QUO == "'" ]]; then
