@@ -3,8 +3,9 @@
  *   a pattern.
  *
  * usage:
- *   grep <file> <delim> <quoting char> <field idx> <pattern>
- *
+ *   grep <file> <delim> <quoting char> <n rows to skip> <reverse match?> \
+ *        <field idx> <pattern>
+ *        
  * This program is not meant to be called directly, see instead the interface
  * exposed in csv-grep.
  */
@@ -18,12 +19,15 @@
 
 // Structure for holding command line arguemnts
 typedef struct {
-    char delim;    // Single char delimiter.
-    char quo;      // Single char for quoting.
+    FILE* csv;  // Connection to csv file.
+    char delim; // Single char delimiter.
+    char quo;   // Single char for quoting.
+    long n_row_to_skip; // How many rows, counting from the beginning of the
+                        // file, to automatically count as no-match.
+    int reverse_match;  // Boolean, reverse matches if true.
+    int field_idx; // Index of field to match pattern against.
     char* pattern; // Pattern to match against.
     regex_t regex; // Compiled regular expression object from pattern.
-    int field_idx; // Index of field to match pattern against.
-    FILE* csv;     // Connection to csv file.
 } arguments;
 
 
@@ -32,10 +36,12 @@ arguments* parse_args(int argc, char* argv[]) {
     int retcd;  // Return code for regex compile.
 
     arguments* args = calloc(1, sizeof(arguments));
-    args->delim = *argv[2];
-    args->quo = *argv[3];
-    args->field_idx = atoi(argv[4]);
-    args->pattern = argv[5];
+    args->delim = *argv[2]; // Single char
+    args->quo = *argv[3];   // Single char
+    args->n_row_to_skip = atoi(argv[4]);
+    args->reverse_match = atoi(argv[5]);
+    args->field_idx = atoi(argv[6]);
+    args->pattern = argv[7];
     // Compile the pattern into a regular expression object.
     retcd = regcomp(&args->regex, args->pattern, 0);
     if(retcd != 0) {
@@ -127,11 +133,18 @@ int main(int argc, char* argv[]) {
                                    // allocated once for efficiency.
     int is_match;                  // Is the current line a match?
 
+    // Trash lines from top of file as directed by n_row_to_skip.
+    for(int i=0; i < args->n_row_to_skip; i++) {
+        getline(&line, &len, args->csv);
+    }
+
     // Process csv line by line
     while((line_len = getline(&line, &len, args->csv)) != EOF) {
         is_match = match_line(match_str, line, line_len, args);
-        // printf("%i\n", is_match);
-        if(is_match) {
+        if(is_match && !args->reverse_match) {
+            printf(line);
+        }
+        if(!is_match && args->reverse_match) {
             printf(line);
         }
     }
