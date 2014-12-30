@@ -3,13 +3,13 @@ SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
 QUO='"'
-while getopts h?d:q:f: OPT; do
+while getopts h?d:q:f:r: OPT; do
     case $OPT in
         \?|h)
             echo "csv-cut: Cut columns out of a csv."
             echo "useage:"
-            echo "  csv-cut -f <delimited file> [-d <delim>] [-q <quoting char>"
-            echo "          <array of column names>"
+            echo "  csv-cut -f <delimited file> [-d <delim>] [-q <quoting char>] "\
+                 "[-r <header file>] <array of column names or indices>"
             exit 0
             ;;
         d)
@@ -21,15 +21,42 @@ while getopts h?d:q:f: OPT; do
         f)
             FILE=$OPTARG
             ;;
+        r)
+            HEADERFILE=$OPTARG
+            ;;
     esac
 done
 
-shift $(($OPTIND - 1))
-
-# Get the column indexes of the requested columns.
-COLIDXS=$(csv-getcolidxs -f $FILE -d $DELIM ${@:1})
-if [[ $? != 0 ]]; then
+if [[ $FILE == '' ]]; then
+    echo "csv-cut: Argument -f required." >&2
     exit 1
+fi
+
+# Pull off the array of column names|indices
+shift $(($OPTIND - 1))
+COLS="${@:1}"
+if [[ $COLS == '' ]]; then
+    echo "csv-cut: No columns to cut" >&2
+    exit 1
+fi
+
+# Header argument is optional, if not supplied it is assumed to be the 
+# first line in FILE
+if [[ $HEADERFILE == '' ]]; then
+  HEADERFILE=$FILE
+fi
+
+# Check if the column array is numeric id's, if not, parse the array of names
+# to get the numeric indicies of the named columns
+if [[ $COLS =~ ^[0-9\ ]+$ ]]; then
+    COLIDXS=$COLS
+else
+    COLIDXS=$(csv-getcolidxs -f $HEADERFILE -d $DELIM ${@:1})
+    if [[ $? != 0 ]]; then
+        echo "csv-cut: Could not find indicies for some of the requested columns." >&2
+        echo "Are you sure they all exist?" >&2
+        exit 1
+    fi
 fi
 
 # Sort the column indiexs
@@ -38,8 +65,8 @@ COLIDXS=$(echo $COLIDXS | tr ' ' '\n' | sort -n | tr '\n' ' ')
 # Check if duplicate columns were requested.
 DUPS=$(echo $COLIDXS | tr ' ' '\n' | uniq -d)
 if [[ $DUPS != '' ]]; then
-    echo "Duplicate columns detected, terminating." >&2
-    echo 1
+    echo "csv-cut: Duplicate columns detected, terminating." >&2
+    exit 1
 fi
 
 # Call the binary.
