@@ -40,4 +40,5 @@ fi
 
 # grep -n counts starting at one, we require starting at 0.
 echo "$COLIDX - 1" | bc
+
 exit 0

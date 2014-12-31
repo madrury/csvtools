@@ -50,3 +50,5 @@ csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLS \
   | tail -n +2 \
   | sort \
   | uniq -c
+
+exit 0

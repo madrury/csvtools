@@ -157,5 +157,5 @@ int main(int argc, char* argv[]) {
     }
 
     free(args);
-    return 0;
+    exit(EXIT_SUCCESS);
 }

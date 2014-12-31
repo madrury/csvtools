@@ -97,3 +97,5 @@ else
     cat /dev/stdin \
         | $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
 fi
+
+exit 0

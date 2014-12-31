@@ -57,6 +57,7 @@ else
     HEADER=$(cat $HEADERFILE | head -1)
 fi
 
+
 # Check if the column array is numeric id's, if not, parse the array of names
 # to get the numeric indicies of the named columns
 if [[ $COLS =~ ^[0-9\ ]+$ ]]; then
@@ -89,3 +90,5 @@ if [[ $FILE != 'stdin' ]]; then
 else
    cat /dev/stdin | $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS
 fi
+
+exit 0

@@ -49,3 +49,5 @@ else
 fi
 
 cat $FILE | tail -n $TAILARG | shuf -n $NTOTAKE
+
+exit 1

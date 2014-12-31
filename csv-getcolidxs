@@ -48,4 +48,5 @@ done;
 # all remaining commas with spaces to make a nice argument list for a 
 # command line call.
 echo $OUTSTR | sed "s/,//" | sed "s/,/ /g"
+
 exit 0
