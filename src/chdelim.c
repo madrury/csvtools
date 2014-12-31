@@ -9,11 +9,18 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "errors.h"
 
 int main(int argc, char* argv[]){
+    FILE* csv;
 
-    FILE* csv = fopen(argv[1], "r");
+    if(strcmp(argv[1], "stdin") == 0) {
+        csv = stdin;
+    }
+    else {
+        csv = fopen(argv[1], "r");
+    }
     if(csv == NULL) {
         raise_file_error();
     }
@@ -22,6 +29,8 @@ int main(int argc, char* argv[]){
     char new_delim = *argv[3];
     char quote_char = *argv[4];
 
+    // Go through the stream char by char and change the delimiters
+    // that are not inside of quoting pairs.
     char ch;
     char prev_ch = '\0';
     int inside_quote = 0;

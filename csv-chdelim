@@ -26,10 +26,6 @@ while getopts h?d:n:q:f: OPT; do
     esac
 done
 
-if [[ $FILE == '' ]]; then
-    echo "csv-chdelim: Argument -f required." >&2
-    exit 1
-fi
 if [[ $DELIM == '' ]]; then
     echo "csv-chdelim: Argument -d required." >&2
     exit 1
@@ -39,10 +35,12 @@ if [[ $NEWDELIM == '' ]]; then
     exit 1
 fi
 
-if [[ $QUO == '"' ]]; then
-   $SRCDIR/bin/chdelim $FILE $DELIM $NEWDELIM '"'
-elif [[ $QUO == "'" ]]; then
-   $SRCDIR/bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "'"
+# Explicit file argument is optional, if not supplied it is assumed the 
+# file is streaming from standard input
+if [[ $FILE == '' ]]; then
+   cat /dev/stdin | $SRCDIR/bin/chdelim "stdin" $DELIM $NEWDELIM $QUO
 else
-   $SRCDIR/bin/chdelim "$FILE" "$DELIM" "$NEWDELIM" "$QUO"
+   $SRCDIR/bin/chdelim $FILE $DELIM $NEWDELIM $QUO
 fi
+
+exit 0
