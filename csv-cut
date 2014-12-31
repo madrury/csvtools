@@ -32,6 +32,13 @@ if [[ $FILE == '' ]]; then
     exit 1
 fi
 
+# Header argument is optional, if not supplied it is assumed to be the 
+# first line in FILE
+if [[ $HEADERFILE == '' ]]; then
+    HEADERFILE=$FILE
+fi
+HEADER=$(cat $HEADERFILE | head -1)
+
 # Pull off the array of column names|indices
 shift $(($OPTIND - 1))
 COLS="${@:1}"
@@ -40,18 +47,12 @@ if [[ $COLS == '' ]]; then
     exit 1
 fi
 
-# Header argument is optional, if not supplied it is assumed to be the 
-# first line in FILE
-if [[ $HEADERFILE == '' ]]; then
-    HEADERFILE=$FILE
-fi
-
 # Check if the column array is numeric id's, if not, parse the array of names
 # to get the numeric indicies of the named columns
 if [[ $COLS =~ ^[0-9\ ]+$ ]]; then
     COLIDXS=$COLS
 else
-    COLIDXS=$(csv-getcolidxs -f $HEADERFILE -d $DELIM ${@:1})
+    COLIDXS=$(csv-getcolidxs -r $HEADER -d $DELIM ${@:1})
     if [[ $? != 0 ]]; then
         echo "csv-cut: Could not find indicies for some of the requested columns." >&2
         echo "Are you sure they all exist?" >&2

@@ -6,14 +6,14 @@ while getopts h?f:d:c: OPT; do
         \?|h)
             echo "csv-getcolidxs:  Get the indices of multiple columns in a delimited file."
             echo "useage:"
-            echo "  csv-getcolidxs -f <delimited file> [-d <delim>] <column names>"
+            echo "  csv-getcolidxs -r <header string> [-d <delim>] <column names>"
             exit 0
             ;;
         d)
             DELIM=$OPTARG
             ;;
-        f)
-            FILE=$OPTARG
+        r)
+            HEADER=$OPTARG
             ;;
     esac
 done
@@ -36,7 +36,7 @@ OUTSTR=""
 # Iteratively get the index of the columns requested, and join them into
 # a comma seperated string.
 for COLNM in $COLS; do
-  COLIDX=$(csv-getcolidx -d $DELIM -f $FILE -c $COLNM)
+  COLIDX=$(csv-getcolidx -d $DELIM -r $HEADER -c $COLNM)
   if [[ $? != 0 ]]; then
       echo "csv-getcolidxs: Field $COLNM not found, terminating."
       exit 1

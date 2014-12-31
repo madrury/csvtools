@@ -12,6 +12,7 @@
 # define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <regex.h>
 #include "errors.h"
 
@@ -34,6 +35,7 @@ typedef struct {
 arguments* parse_args(int argc, char* argv[]) {
 /* Parse command line arguments into convenient structure. */
     int retcd;  // Return code for regex compile.
+    FILE* csv;
 
     arguments* args = calloc(1, sizeof(arguments));
     args->delim = *argv[2]; // Single char
@@ -49,7 +51,12 @@ arguments* parse_args(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
     // Open a connection to the csv file.
-    FILE* csv = fopen(argv[1], "r");
+    if(strcmp(argv[1], "stdin") == 0) {
+        csv = stdin;
+    }
+    else {
+        csv = fopen(argv[1], "r");
+    }
     if(csv == NULL) {
         raise_file_error();
     }

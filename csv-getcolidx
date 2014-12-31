@@ -2,19 +2,19 @@
 
 # Parse command line args
 DELIM=','
-while getopts h?f:d:c: OPT; do
+while getopts h?r:d:c: OPT; do
     case $OPT in
         \?|h)
             echo "csv-getcolidx:  Get the index of a column in a delimited file."
             echo "useage:"
-            echo "  csv-getcolidx -f <delimited file> -c <column name> [-d <delim>]"
+            echo "  csv-getcolidx -r <header string> -c <column name> [-d <delim>]"
             exit 0
             ;;
         d)
             DELIM=$OPTARG
             ;;
-        f)
-            FILE=$OPTARG
+        r)
+            HEADER=$OPTARG
             ;;
         c)
             COL=$OPTARG
@@ -22,8 +22,8 @@ while getopts h?f:d:c: OPT; do
     esac
 done
 
-if [[ $FILE == '' ]]; then
-    echo "csv-getcolidx: argument -f required" >&2
+if [[ $HEADER == '' ]]; then
+    echo "csv-getcolidx: argument -r required" >&2
     exit 1
 fi
 if [[ $COL == '' ]]; then
@@ -31,7 +31,7 @@ if [[ $COL == '' ]]; then
     exit 1
 fi
 
-COLIDX=$(head -1 $FILE | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1)
+COLIDX=$(echo $HEADER | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1)
 
 if [[ $COLIDX == '' ]]; then
     echo "csv-getcolidx: Column $COL not found.  Terminating." >&2
