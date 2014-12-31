@@ -1,0 +1,76 @@
+#! /bin/bash
+
+while getopts h:r:d?u?i? OPT; do
+    case $OPT in
+        \?|h)
+            echo "csv-set: Set operations on delimited files."
+            echo "useage:"
+            echo "  csv-set [ -d | -u | -i ] <file 1> <file 2>"
+            exit 0
+            ;;
+        r)
+            HEADERFILE=$OPTARG
+            ;;
+        d)
+            TYPE="DIFF"
+            ;;
+        u)
+            if [[ $TYPE != '' ]]; then
+                echo "Only one operation type argument may be supplied at a time." &>2
+                exit 1
+            fi
+            TYPE="UNION"
+            ;;
+        i)
+            if [[ $TYPE != '' ]]; then
+                echo "Only one operation type argument may be supplied at a time." &>2
+                exit 1
+            fi
+            TYPE="INTERSECTION"
+            ;;
+    esac
+done
+
+if [[ $TYPE == '' ]]; then
+    echo "csv-set: No or unknown operation supplied."
+    exit 1
+fi
+
+shift $(($OPTIND - 1))
+THIS=$1
+THAT=$2
+
+# Headerfile is an optional argument, if not supplied it is assumed that the
+# first line of the file is a header
+if [[ $HEADERFILE == '' ]]; then
+    HEADERFILE1=$THIS; HEADERFILE2=$THAT
+    HEADER1=$(cat $HEADERFILE1 | head -1)
+    HEADER2=$(cat $HEADERFILE2 | head -1)
+    if [[ $HEADER1 != $HEADER2 ]]; then
+        echo "Headers in two files not equal, aborting." >&2
+        exit 1
+    fi
+    HEADER=$HEADER1; HEADERFILE=$THIS
+    TAILARG="+2"
+else
+    TAILARG="+1"
+fi
+
+if [[ $HEADERFILE == $THIS ]]; then
+    echo $HEADER
+fi
+
+if [[ $TYPE == "DIFF" ]]; then
+    diff <(cat $THIS | tail -n $TAILARG | sort) <(cat $THAT | tail -n $TAILARG | sort) \
+        | grep '< ' \
+        | sed 's!< !!'
+elif [[ $TYPE == "UNION" ]]; then
+    cat <(cat $THIS | tail -n $TAILARG) <(cat $THAT | tail -n $TAILARG) \
+        | sort \
+        | uniq
+elif [[ $TYPE == "INTERSECTION" ]]; then
+    comm -12 <(cat $THIS | tail -n $TAILARG | sort) <(cat $THAT | tail -n $TAILARG | sort)
+else
+    echo "csv-set: Type not recognized." >&2
+    exit 1
+fi
