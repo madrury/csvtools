@@ -1,7 +1,7 @@
 #! /bin/bash
 
 DELIM=','
-while getopts h?f:d:c: OPT; do
+while getopts h?r:d:c: OPT; do
     case $OPT in
         \?|h)
             echo "csv-getcolidxs:  Get the indices of multiple columns in a delimited file."
@@ -18,8 +18,8 @@ while getopts h?f:d:c: OPT; do
     esac
 done
 
-if [[ $FILE == '' ]]; then
-    echo "csv-getcolidxs: Argument -f required." >&2
+if [[ $HEADER == '' ]]; then
+    echo "csv-getcolidxs: Argument -r required." >&2
     exit 1
 fi
 

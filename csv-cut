@@ -27,17 +27,16 @@ while getopts h?d:q:f:r: OPT; do
     esac
 done
 
+# Explicit file argument is optional, if not supplied it is assumed the 
+# file is streaming from standard input
 if [[ $FILE == '' ]]; then
-    echo "csv-cut: Argument -f required." >&2
-    exit 1
+    FILE="stdin"
 fi
-
 # Header argument is optional, if not supplied it is assumed to be the 
 # first line in FILE
 if [[ $HEADERFILE == '' ]]; then
     HEADERFILE=$FILE
 fi
-HEADER=$(cat $HEADERFILE | head -1)
 
 # Pull off the array of column names|indices
 shift $(($OPTIND - 1))
@@ -45,6 +44,17 @@ COLS="${@:1}"
 if [[ $COLS == '' ]]; then
     echo "csv-cut: No columns to cut" >&2
     exit 1
+fi
+
+# We need to get the actual header to keep so it does not interfere
+# with our grepping.  How to do this depends on whether we are working from 
+# standard input, or from a file.
+if [[ $HEADERFILE != $FILE ]]; then
+    HEADER=$(cat $HEADERFILE | head -1)
+elif [[ $FILE == "stdin" ]]; then
+    read HEADER
+else
+    HEADER=$(cat $HEADERFILE | head -1)
 fi
 
 # Check if the column array is numeric id's, if not, parse the array of names
@@ -70,11 +80,12 @@ if [[ $DUPS != '' ]]; then
     exit 1
 fi
 
-# Call the binary.
-if [[ $QUO == '"' ]]; then
-   $SRCDIR/bin/cut $FILE $DELIM '"' $COLIDXS
-elif [[ $QUO == "'" ]]; then
-   $SRCDIR/bin/cut $FILE $DELIM "'" $COLIDXS
-else
+if [[ $HEADERFILE == $FILE ]]; then
+    echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS
+fi
+
+if [[ $FILE != 'stdin' ]]; then
    $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS
+else
+   cat /dev/stdin | $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS
 fi

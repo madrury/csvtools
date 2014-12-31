@@ -41,7 +41,6 @@ if [[ $COL == '' ]]; then
     echo "csv-grep: Argument -c required." >&2
     exit 1
 fi
-
 if [[ $PATTERN == '' ]]; then
     echo "csv-grep: Argument -p required." >&2
     exit 1
@@ -92,21 +91,9 @@ if [[ $HEADERFILE == $FILE ]]; then
     echo $HEADER
 fi
 
-# If you know a way around this nested if, please let me know.
 if [[ $FILE != 'stdin' ]]; then
-    if [[ $QUO == '"' ]]; then
-        $SRCDIR/bin/grep $FILE $DELIM '"' $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
-    elif [[ $QUO == "'" ]]; then
-        $SRCDIR/bin/grep $FILE $DELIM "'" $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
-    else
-        $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
-    fi
+    $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
 else
-    if [[ $QUO == '"' ]]; then
-        cat /dev/stdin | $SRCDIR/bin/grep $FILE $DELIM '"' $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
-    elif [[ $QUO == "'" ]]; then
-        cat /dev/stdin | $SRCDIR/bin/grep $FILE $DELIM "'" $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
-    else
-        cat /dev/stdin | $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
-    fi
+    cat /dev/stdin \
+        | $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
 fi

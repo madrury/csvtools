@@ -10,6 +10,7 @@
 # define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "errors.h"
 
 #define MAX_N_FIELDS 2000
@@ -40,8 +41,9 @@ typedef struct {
 
 arguments* parse_args(int argc, char* argv[]) {
 /* Parse the command line argument array into a convienent structure. */
+    FILE* csv;
+
     arguments* args = calloc(1, sizeof(arguments));
-    
     args->delim = *argv[2];
     args->quo = *argv[3];
     // Parse sequence of integers passed as command line arguments into an
@@ -57,7 +59,12 @@ arguments* parse_args(int argc, char* argv[]) {
         raise_not_increasing_error();
     }
     // Open a connection to the delimited file.
-    FILE* csv = fopen(argv[1], "r");
+    if(strcmp(argv[1], "stdin") == 0) {
+        csv = stdin;
+    }
+    else {
+        csv = fopen(argv[1], "r");
+    }
     if(csv == NULL) {
         raise_file_error();
     }
