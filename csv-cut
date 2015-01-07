@@ -8,11 +8,11 @@ while getopts h?d:q:f:r: OPT; do
         \?|h)
 echo "csv-cut: Cut columns out of a delimited file."
 echo
-echo "usage: csv-cut [-f FILE] [-d DELIMITER ] [-q QUOTING_CHAR]"
+echo "usage: csv-cut [-f FILE] [-d DELIMITER] [-q QUOTING_CHAR]"
 echo "               [-r HEADER_FILE] COLUMN_NAMES_OR_INDICES..."
 echo
 echo "required arguments:"
-echo "  COLUMN_NAMES_OR_INDICES.."
+echo "  COLUMN_NAMES_OR_INDICES..."
 echo "                     Space speparated list of names of the"
 echo "                     columns to be cut. Alternatively, a"
 echo "                     numeric list of column indices may be"
@@ -70,12 +70,14 @@ fi
 # standard input, or from a file.
 if [[ $HEADERFILE != $FILE ]]; then
     HEADER=$(cat $HEADERFILE | head -1)
+    TAILARGS="+1"
 elif [[ $FILE == "stdin" ]]; then
     read HEADER
+    TAILARGS="+1"
 else
     HEADER=$(cat $HEADERFILE | head -1)
+    TAILARGS="+2"
 fi
-
 
 # Check if the column array is numeric id's, if not, parse the array of names
 # to get the numeric indicies of the named columns
@@ -105,9 +107,12 @@ if [[ $HEADERFILE == $FILE ]]; then
 fi
 
 if [[ $FILE != 'stdin' ]]; then
-   $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS
+   $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS \
+     | tail -n $TAILARGS
 else
-   cat /dev/stdin | $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS
+   cat /dev/stdin \
+     | $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS \
+     | tail -n $TAILARGS
 fi
 
 exit 0
