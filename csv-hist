@@ -1,13 +1,35 @@
 #! /bin/bash
+SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 DELIM=','
 QUO='"'
 while getopts h?d:f:q:r: OPT; do
     case $OPT in
         \?|h)
-            echo "csv-hist: Make a frequency table from columns in a csv."
-            echo "useage:"
-            echo "  csv-hist -f <delimited file> [-d <delim>] [-q <quoting char>]"\
-                 "<column 1 name> ... <column n name>                 "
+echo "csv-hist: Make a frequency table from columns in a delimited"
+echo "          file."
+echo
+echo "usage: csv-hist [-f FILE] [-d DELIMITER] [-q QUOTING_CHAR]"
+echo "                [-r HEADER_FILE] COLUMN_NAMES_OR_INDICES..."
+echo 
+echo "required arguments:"
+echo "  COLUMN_NAMES_OR_INDICES..."
+echo "                     Space speparated list of names of the"
+echo "                     columns to be summarized. Alternatively,"
+echo "                     a list of column indicies may be"
+echo "                     supplied."
+echo
+echo "optional arguments:"
+echo "  -f FILE           Delimited file. If not supplied input is"
+echo "                    read from the standard input stream."
+echo "  -d DELIMITER      Character delimiting the input file."
+echo "  -q QUOTING_CHAR   Character used for quoting fileds in the"
+echo "                    file. If not supplied, assumed to be"
+echo "                    double quotes"
+echo "  -r HEADER_FILE    Header file containing the column names"
+echo "                    for the delimited file. If not supplied,"
+echo "                    it is assumed that the first line of the"
+echo "                    input file contains the header information."
             exit 0
             ;;
         d)
@@ -25,17 +47,15 @@ while getopts h?d:f:q:r: OPT; do
     esac
 done
 
+# Explicit file argument is optional, if not supplied it is assumed the 
+# file is streaming from standard input
 if [[ $FILE == '' ]]; then
-    echo "csv-hist: Argument -f required." >&2
-    exit 1
+    FILE="stdin"
 fi
-
-# Header argument is optional, if it exists, we construct the 
-# corresponding argument string to csv-cut.
-if [[ $HEADERFILE != '' ]]; then
-    HEADERARG="-r $HEADERFILE"
-else
-    HEADERARG=""
+# Header argument is optional, if not supplied it is assumed to be the 
+# first line in FILE
+if [[ $HEADERFILE == '' ]]; then
+    HEADERFILE=$FILE
 fi
 
 # Pull off the array of column names|indices
@@ -46,9 +66,58 @@ if [[ $COLS == '' ]]; then
     exit 1
 fi
 
-csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLS \
-  | tail -n +2 \
-  | sort \
-  | uniq -c
+# We need to get the actual header to keep so it does not interfere
+# with our summarizing.  How to do this depends on whether we are working from
+# standard input, or from a file.
+if [[ $HEADERFILE != $FILE ]]; then
+    HEADERARG="-r $HEADERFILE"
+    HEADER=$(cat $HEADERFILE | head -1)
+    TAILARG="+1"
+elif [[ $FILE == "stdin" ]]; then
+    HEADERARG=""
+    read HEADER
+    TAILARG="+1"
+else
+    HEADERARG=""
+    HEADER=$(cat $HEADERFILE | head -1)
+    TAILARG="+2"
+fi
+
+# Check if the column array is numeric id's, if not, parse the array of names
+# to get the numeric indicies of the named columns
+if [[ $COLS =~ ^[0-9\ ]+$ ]]; then
+    COLIDXS=$COLS
+else
+    COLIDXS=$(csv-getcolidxs -r $HEADER -d $DELIM ${@:1})
+    if [[ $? != 0 ]]; then
+        echo "csv-cut: Could not find indicies for some of the requested columns." >&2
+        echo "Are you sure they all exist?" >&2
+        exit 1
+    fi
+fi
+# Sort the column indiexs
+COLIDXS=$(echo $COLIDXS | tr ' ' '\n' | sort -n | tr '\n' ' ')
+
+# Check if duplicate columns were requested.
+DUPS=$(echo $COLIDXS | tr ' ' '\n' | uniq -d)
+if [[ $DUPS != '' ]]; then
+    echo "csv-cut: Duplicate columns detected, terminating." >&2
+    exit 1
+fi
+
+# Output the table header
+echo "count $(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
+
+if [[ $FILE != 'stdin' ]]; then
+    $SRCDIR/csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLIDXS \
+      | tail -n $TAILARG \
+      | sort \
+      | uniq -c
+else
+    cat /dev/stdin | $SRCDIR/csv-cut -d $DELIM -q $QUO $HEADERARG $COLIDXS \
+      | tail -n $TAILARG \
+      | sort \
+      | uniq -c
+fi
 
 exit 0
