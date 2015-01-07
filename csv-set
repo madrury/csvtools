@@ -1,17 +1,18 @@
 #! /bin/bash
 
-while getopts h:r:d?u?i? OPT; do
+while getopts h:r:T:d?u?i? OPT; do
     case $OPT in
         \?|h)
 echo "csv-set: Perform set operations on delimited files by row."
 echo
-echo "usage: csv-set (-d | -u | -i) FILE1 FILE2"
+echo "usage: csv-set [-T TEMP_DIR] [-r HEADER_FILE]"
+echo "               (-d | -u | -i) FILE1 FILE2"
 echo
 echo "required arguments:"
 echo "  FILE1             Delimited file."
 echo "  FILE2             Delimited file."
 echo
-echo "Exactly one of the following is required."
+echo "exactly one of the following is also required."
 echo "  -d                Take the difference to two files. I.e."
 echo "                    output all records in FILE1 and not in"
 echo "                    FILE2."
@@ -21,6 +22,18 @@ echo "                    FILE1 or FILE2."
 echo "  -i                Take the intersection of two files. I.e."
 echo "                    output all the records that exist in both"
 echo "                    FILE1 and FILE2."
+echo 
+echo "optional arguments:"
+echo "  -T TEMP_DIR       Specify a directory to use for scratch"
+echo "                    space during sorting. If not supplied,"
+echo "                    /tmp is assumed."
+echo "  -r HEADER_FILE    Header file containing the column names"
+echo "                    for the delimited file. If not supplied,"
+echo "                    it is assumed that the first line of the"
+echo "                    input file contains the header information."
+echo "                    While set operations do not require the"
+echo "                    header, they need to know whether the first"
+echo "                    line in the files contain te header or data."
             exit 0
             ;;
         r)
@@ -43,12 +56,19 @@ echo "                    FILE1 and FILE2."
             fi
             TYPE="INTERSECTION"
             ;;
+        T)
+            TEMPDIR=$OPTARG
+            ;;
     esac
 done
 
 if [[ $TYPE == '' ]]; then
     echo "csv-set: No or unknown operation supplied."
     exit 1
+fi
+
+if [[ $TEMPDIR != '' ]]; then
+    SORTARGS="-T $TEMPDIR"
 fi
 
 shift $(($OPTIND - 1))
@@ -76,15 +96,17 @@ if [[ $HEADERFILE == $THIS ]]; then
 fi
 
 if [[ $TYPE == "DIFF" ]]; then
-    diff <(cat $THIS | tail -n $TAILARG | sort) <(cat $THAT | tail -n $TAILARG | sort) \
+    diff <(cat $THIS | tail -n $TAILARG | sort $SORTARGS) \
+         <(cat $THAT | tail -n $TAILARG | sort $SORTARGS) \
         | grep '< ' \
         | sed 's!< !!'
 elif [[ $TYPE == "UNION" ]]; then
     cat <(cat $THIS | tail -n $TAILARG) <(cat $THAT | tail -n $TAILARG) \
-        | sort \
+        | sort $SORTARGS \
         | uniq
 elif [[ $TYPE == "INTERSECTION" ]]; then
-    comm -12 <(cat $THIS | tail -n $TAILARG | sort) <(cat $THAT | tail -n $TAILARG | sort)
+    comm -12 <(cat $THIS | tail -n $TAILARG | sort $SORTARGS) \
+             <(cat $THAT | tail -n $TAILARG | sort $SORTARGS)
 else
     echo "csv-set: Type not recognized." >&2
     exit 1
