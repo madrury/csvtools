@@ -3,9 +3,24 @@
 while getopts h:r:d?u?i? OPT; do
     case $OPT in
         \?|h)
-            echo "csv-set: Set operations on delimited files."
-            echo "useage:"
-            echo "  csv-set [ -d | -u | -i ] <file 1> <file 2>"
+echo "csv-set: Perform set operations on delimited files by row."
+echo
+echo "usage: csv-set (-d | -u | -i) FILE1 FILE2"
+echo
+echo "required arguments:"
+echo "  FILE1             Delimited file."
+echo "  FILE2             Delimited file."
+echo
+echo "Exactly one of the following is required."
+echo "  -d                Take the difference to two files. I.e."
+echo "                    output all records in FILE1 and not in"
+echo "                    FILE2."
+echo "  -u                Take the union of two files. I.e. output"
+echo "                    all the records that exsist in either"
+echo "                    FILE1 or FILE2."
+echo "  -i                Take the intersection of two files. I.e."
+echo "                    output all the records that exist in both"
+echo "                    FILE1 and FILE2."
             exit 0
             ;;
         r)
