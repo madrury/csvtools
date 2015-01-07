@@ -1,12 +1,28 @@
 #! /bin/bash
 
 DELIM=','
-while getopts h:f:r:p: OPT; do
+while getopts h?f:r:p: OPT; do
     case $OPT in
         \?|h)
-            echo "csv-sample: Randomly sample a proportion of a data set."
-            echo "useage:"
-            echo "  csv-sample -f <delimited file> [-d <delim>] -p <proportion>"
+echo "csv-sample: Randomly sample a proportion of a delimited file."
+echo
+echo "usage: csv-sample [-r HEADER_FILE] -f FILE -p PROPORTION"
+echo
+echo "required arguments:"
+echo "  -f FILE           Delimited file. Must be supplied from a"
+echo "                    file instead of a stream, as down sampling"
+echo "                    takes two passes over the data."
+echo "  -p PROPORTION     Numerical proportion of records to sample,"
+echo "                    for example .5 or .75."
+echo
+echo "optional arguments:"
+echo "  -r HEADER_FILE    Header file containing the column names"
+echo "                    for the delimited file. If not supplied,"
+echo "                    it is assumed that the first line of the"
+echo "                    input file contains the header information."
+echo "                    While sampling do not require the header,"
+echo "                    it must know whether the first line in the"
+echo "                    data contains the header or data."
             exit 0
             ;;
         f)

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-while getopts h:r:T:d?u?i? OPT; do
+while getopts h?r:T:d?u?i? OPT; do
     case $OPT in
         \?|h)
 echo "csv-set: Perform set operations on delimited files by row."
@@ -33,7 +33,8 @@ echo "                    it is assumed that the first line of the"
 echo "                    input file contains the header information."
 echo "                    While set operations do not require the"
 echo "                    header, they need to know whether the first"
-echo "                    line in the files contain te header or data."
+echo "                    line in the files contain the header or"
+echo "                    data."
             exit 0
             ;;
         r)
