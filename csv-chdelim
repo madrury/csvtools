@@ -5,10 +5,21 @@ QUO='"'
 while getopts h?d:n:q:f: OPT; do
     case $OPT in
         \?|h)
-            echo "csv-ch-delim: Change the delimiter in a file."
-            echo "useage:"
-            echo "  csv-chdelim -f <file> -d <delimiter> -n <new dilimiter>"
-            echo "              [-q <quoting char>]"
+echo "csv-chdelim: Change the delimiter in a delimited file."
+echo
+echo "useage: csv-chdelim [-f FILE] [-q QUOTING_CHAR] -d DELIMITER "
+echo "                    -n NEW_DELIMITER"
+echo 
+echo "required arguments:"
+echo "  -d DELIMITER      Character delimiting the input file."
+echo "  -n NEW_DELIMITER  Character to change delimiter to."
+echo
+echo "optional arguments:"
+echo "  -f FILE           Delimited file. If not supplied input is"
+echo "                    Read from the standard input stream."
+echo "  -q QUOTING_CHAR   Character used for quoting fileds in the"
+echo "                    file. If not supplied, assumed to be"
+echo "                    double quotes"
             exit 0
             ;;
         d)
