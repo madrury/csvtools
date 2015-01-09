@@ -106,18 +106,16 @@ if [[ $DUPS != '' ]]; then
 fi
 
 # Output the table header
-echo "count $(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
+printf "%-12s %s\n" "count" "$(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
 
 if [[ $FILE != 'stdin' ]]; then
     $SRCDIR/csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLIDXS \
       | tail -n $TAILARG \
-      | sort \
-      | uniq -c
+      | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%-12i %s\n", hist[i], i}};'
 else
     cat /dev/stdin | $SRCDIR/csv-cut -d $DELIM -q $QUO $HEADERARG $COLIDXS \
       | tail -n $TAILARG \
-      | sort \
-      | uniq -c
+      | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%-12i %s\n", hist[i], i}};'
 fi
 
 exit 0
