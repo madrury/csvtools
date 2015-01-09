@@ -97,7 +97,7 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
             field_idx++;
         }
         else if(chr == '\n') {
-            printf("End of line without encountering field n.\n");
+            fprintf(stderr, "End of line without encountering field n.\n");
             exit(EXIT_FAILURE);
         }
         // Check if we've enetered the correct field.  If so, increment
@@ -150,10 +150,10 @@ int main(int argc, char* argv[]) {
     while((line_len = getline(&line, &len, args->csv)) != EOF) {
         is_match = match_line(match_str, line, line_len, args);
         if(is_match && !args->reverse_match) {
-            printf(line);
+            printf("%s", line);
         }
         if(!is_match && args->reverse_match) {
-            printf(line);
+            printf("%s", line);
         }
     }
 

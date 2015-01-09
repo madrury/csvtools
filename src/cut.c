@@ -7,7 +7,7 @@
  * This program is not intended to be called directly, see instead the
  * interface exposed in csv-cut.
  */
-# define _GNU_SOURCE
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
     // Process the csv line by line.
     while((line_len = getline(&line, &len, args->csv)) != EOF) {
         process_line(outline, line, line_len, args);
-        printf(outline);
+        printf("%s", outline);
     }
 
     free(args);
