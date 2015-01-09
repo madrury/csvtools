@@ -47,8 +47,7 @@ arguments* parse_args(int argc, char* argv[]) {
     // Compile the pattern into a regular expression object.
     retcd = regcomp(&args->regex, args->pattern, 0);
     if(retcd != 0) {
-        printf("Failed to compile regular expression.\n");
-        exit(EXIT_FAILURE);
+        raise_regex_error(retcd);
     }
     // Open a connection to the csv file.
     if(strcmp(argv[1], "stdin") == 0) {
@@ -125,7 +124,7 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
         line_p++; i++;
     }
     // Better null terminate that string son.
-    match_str[i] = '\0'
+    match_str[i] = '\0';
     // Now match_str is the string to match against.
     match = regexec(&args->regex, match_str, 0, NULL, 0);
     return(match != REG_NOMATCH);
