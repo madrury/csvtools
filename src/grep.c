@@ -9,7 +9,7 @@
  * This program is not meant to be called directly, see instead the interface
  * exposed in csv-grep.
  */
-# define _GNU_SOURCE
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -124,6 +124,8 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
         match_str[i] = chr;
         line_p++; i++;
     }
+    // Better null terminate that string son.
+    match_str[i] = '\0'
     // Now match_str is the string to match against.
     match = regexec(&args->regex, match_str, 0, NULL, 0);
     return(match != REG_NOMATCH);
