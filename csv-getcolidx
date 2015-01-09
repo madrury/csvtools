@@ -31,7 +31,7 @@ if [[ $COL == '' ]]; then
     exit 1
 fi
 
-COLIDX=$(echo $HEADER | sed "s!$DELIM!\n!g" | grep -nx $COL | cut -d: -f 1)
+COLIDX=$(echo $HEADER | tr "$DELIM" '\n' | grep -nx $COL | cut -d: -f 1)
 
 if [[ $COLIDX == '' ]]; then
     echo "csv-getcolidx: Column $COL not found.  Terminating." >&2
