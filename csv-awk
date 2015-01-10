@@ -1,0 +1,166 @@
+#! /bin/bash
+SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+DELIM=','
+QUO='"'
+while getopts h?d:q:f:r:a: OPT; do
+    case $OPT in
+        \?|h)
+echo "csv-awk: Use awk on a delimited file."
+echo
+echo "usage: csv-cut [-f FILE] [-d DELIMITER] [-q QUOTING_CHAR]"
+echo "               [-r HEADER_FILE] -a AWK_PREOGRAM"
+echo "               COLUMN_NAMES_OR_INDICES..."
+echo
+echo "required arguments:"
+echo " -a AWK_PROGRAM      An awk-like program containg the variables"
+echo "                     \$1, \$2, ..., or \$COL_NAME."
+echo "  COLUMN_NAMES_OR_INDICES..."
+echo "                     Space speparated list of names or indices."
+echo "                     of the columns included in the awk program." 
+echo "optional arguments:"
+echo "  -f FILE           Delimited file. If not supplied input is"
+echo "                    read from the standard input stream."
+echo "  -d DELIMITER      Character delimiting the input file."
+echo "  -q QUOTING_CHAR   Character used for quoting fileds in the"
+echo "                    file. If not supplied, assumed to be"
+echo "                    double quotes"
+echo "  -r HEADER_FILE    Header file containing the column names"
+echo "                    for the delimited file. If not supplied,"
+echo "                    it is assumed that the first line of the"
+echo "                    input file contains the header information."
+            exit 0
+            ;;
+        d)
+            DELIM=$OPTARG
+            ;;
+        q)
+            QUO=$OPTARG
+            ;;
+        f)
+            FILE=$OPTARG
+            ;;
+        r)
+            HEADERFILE=$OPTARG
+            ;;
+        a)
+            AWKPROG=$OPTARG
+            ;;
+    esac
+done
+
+if [[ $AWKPROG == '' ]]; then
+    echo "Argument -a required." >&2
+fi
+
+# Explicit file argument is optional, if not supplied it is assumed the 
+# file is streaming from standard input
+if [[ $FILE == '' ]]; then
+    FILE="stdin"
+fi
+# Header argument is optional, if not supplied it is assumed to be the 
+# first line in FILE
+if [[ $HEADERFILE == '' ]]; then
+    HEADERFILE=$FILE
+fi
+
+# Pull off the array of column names|indices
+shift $(($OPTIND - 1))
+COLS="${@:1}"
+if [[ $COLS == '' ]]; then
+    echo "csv-cut: No columns to cut" >&2
+    exit 1
+fi
+
+# We need to get the actual header to keep so it does not interfere
+# with our grepping.  How to do this depends on whether we are working from 
+# standard input, or from a file.
+if [[ $HEADERFILE != $FILE ]]; then
+    HEADER=$(cat $HEADERFILE | head -1)
+    TAILARGS="+1"
+elif [[ $FILE == "stdin" ]]; then
+    read HEADER
+    TAILARGS="+1"
+else
+    HEADER=$(cat $HEADERFILE | head -1)
+    TAILARGS="+2"
+fi
+
+# Check if the column array is numeric id's, if not, parse the array of names
+# to get the numeric indicies of the named columns
+if [[ $COLS =~ ^[0-9\ ]+$ ]]; then
+    COLIDXS=$COLS
+    COLNAMES="false"
+else
+    COLIDXS=$(csv-getcolidxs -r $HEADER -d $DELIM ${@:1})
+    COLNAMES="true"
+    if [[ $? != 0 ]]; then
+        echo "csv-cut: Could not find indicies for some of the requested columns." >&2
+        echo "Are you sure they all exist?" >&2
+        exit 1
+    fi
+fi
+
+# Sort the column indiexs
+SORTEDCOLIDXS=$(echo $COLIDXS | tr ' ' '\n' | sort -n | tr '\n' ' ')
+
+# Check if duplicate columns were requested.
+DUPS=$(echo $COLIDXS | tr ' ' '\n' | uniq -d)
+if [[ $DUPS != '' ]]; then
+    echo "csv-cut: Duplicate columns detected, terminating." >&2
+    exit 1
+fi
+
+# We need to disable globbing for this next part becuase bash will
+# expand * (time sign) into all the files in the cwd. 
+set -o noglob
+
+# This next part is a little nasty. The main idea is to convert the script from
+# the user into something we can pass to awk, which expects column indicies.
+# For efficiency, we are going to pipe the input through csv-cut to minimize
+# the data we send to awk. Most of the logic below is aimed at calculating the
+# indicies the columns will reside at after the data passes through csv-cut. We
+# use bash arrays to do the dirty work, it should be straightworward to follow.
+COLARRAY=( $COLS )
+COLIDXARRAY=( $COLIDXS )
+SORTEDCOLIDXARRAY=( $SORTEDCOLIDXS )
+#echo $AWKPROG
+if [[ $COLNAMES == "true" ]]; then
+    for (( i=0; i<${#COLARRAY[@]}; i++ )); do
+        COLNM=${COLARRAY[$i]}
+        COLIDX=$(csv-getcolidx -r $HEADER -c $COLNM)
+        # Find the index of this column in the sorted array of column indices.
+        for (( j=0; ; j++ )); do
+            if [[ ${SORTEDCOLIDXARRAY[j]} == $COLIDX ]]; then
+                break
+            fi
+        done
+        # echo "COLNM: $COLNM, COLIDX: $COLIDX, SROTEDPLACE: $j"
+        SORTEDIDX=$(echo "$j + 1" | bc)
+        AWKPROG=$(echo $AWKPROG | sed "s!\$$COLNM!\$$SORTEDIDX!g")
+        # echo $AWKPROG
+    done
+else
+    for (( i=0; i<${#COLIDXARRAY[@]}; i++ )); do
+        # Find the index of this column in the sorted array of column indices.
+        COLIDX=${COLIDXARRAY[$i]}
+        for (( j=0; ; j++ )); do
+            if [[ ${SORTEDCOLIDXARRAY[j]} == $COLIDX ]]; then
+                break
+            fi
+        done
+        # echo "COLNM: $COLNM, COLIDX: $COLIDX, SROTEDPLACE: $j"
+        SORTEDIDX=$(echo "$j + 1" | bc)
+        AWKPROG=$(echo $AWKPROG | sed "s!\$$COLIDX!\$$SORTEDIDX!g")
+        # echo $AWKPROG
+    done
+
+fi
+
+
+if [[ $FILE != 'stdin' ]]; then
+   $SRCDIR/bin/cut $FILE $DELIM $QUO $COLIDXS \
+     | tail -n $TAILARGS
+else
+    cat /dev/stdin | csv-cut $COLIDXS | awk -F "$DELIM" "$AWKPROG"
+fi
