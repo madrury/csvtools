@@ -3,13 +3,14 @@ SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
 QUO='"'
-while getopts h?d:q:f:r: OPT; do
+OUTHEADER=true
+while getopts h?R?d:q:f:r: OPT; do
     case $OPT in
         \?|h)
 echo "csv-cut: Cut columns out of a delimited file."
 echo
 echo "usage: csv-cut [-f FILE] [-d DELIMITER] [-q QUOTING_CHAR]"
-echo "               [-r HEADER_FILE] COLUMN_NAMES_OR_INDICES..."
+echo "               [-r HEADER_FILE] [-R] COLUMN_NAMES_OR_INDICES..."
 echo
 echo "required arguments:"
 echo "  COLUMN_NAMES_OR_INDICES..."
@@ -29,6 +30,7 @@ echo "  -r HEADER_FILE    Header file containing the column names"
 echo "                    for the delimited file. If not supplied,"
 echo "                    it is assumed that the first line of the"
 echo "                    input file contains the header information."
+echo "  -R                Skip output of header row."
             exit 0
             ;;
         d)
@@ -42,6 +44,9 @@ echo "                    input file contains the header information."
             ;;
         r)
             HEADERFILE=$OPTARG
+            ;;
+        R)
+            OUTHEADER=false
             ;;
     esac
 done
@@ -102,7 +107,7 @@ if [[ $DUPS != '' ]]; then
     exit 1
 fi
 
-if [[ $HEADERFILE == $FILE ]]; then
+if [[ $HEADERFILE == $FILE && $OUTHEADER == "true" ]]; then
     echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS
 fi
 
