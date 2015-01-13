@@ -1,19 +1,23 @@
 #! /bin/bash
 
 DELIM=','
-while getopts h?f:r:p: OPT; do
+while getopts h?f:r:p:n: OPT; do
     case $OPT in
         \?|h)
 echo "csv-sample: Randomly sample a proportion of a delimited file."
 echo
-echo "usage: csv-sample [-r HEADER_FILE] -f FILE -p PROPORTION"
+echo "usage: csv-sample [-r HEADER_FILE] -f FILE"
+echo "                  (-p PROPORTION | -n N_RECORDS)"
 echo
 echo "required arguments:"
 echo "  -f FILE           Delimited file. Must be supplied from a"
 echo "                    file instead of a stream, as down sampling"
 echo "                    takes two passes over the data."
+echo
+echo "additionally, exactly one of the following is required:"
 echo "  -p PROPORTION     Numerical proportion of records to sample,"
 echo "                    for example .5 or .75."
+echo "  -n N_RECORDS      Exact number of record to sample sample."
 echo
 echo "optional arguments:"
 echo "  -r HEADER_FILE    Header file containing the column names"
@@ -34,6 +38,9 @@ echo "                    data contains the header or data."
         p)
             PROP=$OPTARG
             ;;
+        n)
+            NTOTAKE=$OPTARG
+            ;;
     esac
 done
 
@@ -41,20 +48,25 @@ if [[ $FILE == '' ]]; then
     echo "csv-sample: Argument -f required." >&2
     exit 1
 fi
-if [[ $PROP == '' ]]; then
-    echo "csv-sample: Argument -p required." >&2
+if [[ $PROP == '' && $NTOTAKE == '' ]]; then
+    echo "csv-sample: At least one of -p or -n required." >&2
+    exit 1
+fi
+if [[ $PROP != '' && $NTOTAKE != '' ]]; then
+    echo "csv-sample: At most one of -p or -n may be supplied." >&2
     exit 1
 fi
 
-# Count the number of records in the file, then offset by one if
-# the header is included.
-NREC=$(cat $FILE | wc -l)
-if [[ $HEADERFILE == '' ]]; then
-    NREC=$(echo "$NREC - 1" | bc -l)
+if [[ $NTOTAKE == '' ]]; then
+    # Count the number of records in the file, then offset by one if
+    # the header is included.
+    NREC=$(cat $FILE | wc -l)
+    if [[ $HEADERFILE == '' ]]; then
+        NREC=$(echo "$NREC - 1" | bc -l)
+    fi
+    # We are calculating a floor here: cut -d. -f1 == floor
+    NTOTAKE=$(echo "$NREC * $PROP" | bc -l | cut -d. -f1)
 fi
-
-# cut -d. -f1 == floor
-NTOTAKE=$(echo "$NREC * $PROP" | bc -l | cut -d. -f1)
 
 # Output the header if its neccessary
 if [[ $HEADERFILE == '' ]]; then
