@@ -114,10 +114,10 @@ if [[ $HEADERFILE == $FILE ]]; then
 fi
 
 if [[ $FILE != 'stdin' ]]; then
-    $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
+    $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX "$PATTERN"
 else
     cat /dev/stdin \
-        | $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX $PATTERN
+        | $SRCDIR/bin/grep $FILE $DELIM $QUO $NROWTOSKIP $REVERSEMATCH $COLIDX "$PATTERN"
 fi
 
 exit 0

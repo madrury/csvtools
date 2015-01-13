@@ -103,7 +103,7 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
         // Check if we've enetered the correct field.  If so, increment
         // the line pointer to the first char in that field and stop 
         // searching.
-        if(field_idx ==args-> field_idx) {
+        if(field_idx == args->field_idx) {
             line_p++;
             break;
         }
