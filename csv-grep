@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -x
 SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
@@ -98,7 +98,7 @@ fi
 
 # Check if the column array is numeric id's, if not, parse the array of names
 # to get the numeric indicies of the named columns
-if [[ $COL =~ [0-9] ]]; then
+if [[ $COL =~ ^[0-9\ ]+$ ]]; then
     COLIDX=$COL
 else
     COLIDX=$(csv-getcolidx -r $HEADER -d $DELIM -c $COL)
