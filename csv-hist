@@ -3,7 +3,9 @@ SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
 QUO='"'
-while getopts h?d:f:q:r: OPT; do
+PRINTTABLEHEADER='true'
+PRINTCOUNTS='true'
+while getopts h?d:f:q:r:R?U? OPT; do
     case $OPT in
         \?|h)
 echo "csv-hist: Make a frequency table from columns in a delimited"
@@ -30,6 +32,9 @@ echo "  -r HEADER_FILE    Header file containing the column names"
 echo "                    for the delimited file. If not supplied,"
 echo "                    it is assumed that the first line of the"
 echo "                    input file contains the header information."
+echo "  -R                Skip printing the table header."
+echo "  -U                Only print a list of unique values, not"
+echo "                    counts."
             exit 0
             ;;
         d)
@@ -43,6 +48,12 @@ echo "                    input file contains the header information."
             ;;
         r)
             HEADERFILE=$OPTARG
+            ;;
+        R)
+            PRINTTABLEHEADER='false'
+            ;;
+        U)
+            PRINTCOUNTS='false'
             ;;
     esac
 done
@@ -106,16 +117,35 @@ if [[ $DUPS != '' ]]; then
 fi
 
 # Output the table header
-printf "%-12s %s\n" "count" "$(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
+if [[ $PRINTTABLEHEADER == 'true' ]]; then
+    if [[ $PRINTCOUNT == 'true' ]]; then
+        printf "%-12s %s\n" "count" "$(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
+    else
+        printf "%s\n" "$(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
+    fi
+fi
 
-if [[ $FILE != 'stdin' ]]; then
-    $SRCDIR/csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLIDXS \
-      | tail -n $TAILARG \
-      | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%-12i %s\n", hist[i], i}};'
+# Do the math
+if [[ $PRINTCOUNTS == 'true' ]]; then
+    if [[ $FILE != 'stdin' ]]; then
+        $SRCDIR/csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLIDXS \
+        | tail -n $TAILARG \
+        | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%-12i %s\n", hist[i], i}};'
+    else
+        cat /dev/stdin | $SRCDIR/csv-cut -d $DELIM -q $QUO $HEADERARG $COLIDXS \
+        | tail -n $TAILARG \
+        | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%-12i %s\n", hist[i], i}};'
+    fi
 else
-    cat /dev/stdin | $SRCDIR/csv-cut -d $DELIM -q $QUO $HEADERARG $COLIDXS \
-      | tail -n $TAILARG \
-      | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%-12i %s\n", hist[i], i}};'
+    if [[ $FILE != 'stdin' ]]; then
+        $SRCDIR/csv-cut -f $FILE -d $DELIM -q $QUO $HEADERARG $COLIDXS \
+        | tail -n $TAILARG \
+        | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%s\n", i}};'
+    else
+        cat /dev/stdin | $SRCDIR/csv-cut -d $DELIM -q $QUO $HEADERARG $COLIDXS \
+        | tail -n $TAILARG \
+        | awk '{hist[$1] += 1}; END {for (i in hist) {printf "%s\n", i}};'
+    fi
 fi
 
 exit 0
