@@ -1,4 +1,4 @@
-#! /bin/bash -x
+#! /bin/bash
 SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
@@ -22,9 +22,9 @@ echo "  -p PATTERN        Regular expression pattern to match the"
 echo "                    datum in the supplied column against."
 echo
 echo "optional arguments:"
+echo "  -d DELIMITER      Character delimiting the input file."
 echo "  -f FILE           Delimited file. If not supplied input is"
 echo "                    read from the standard input stream."
-echo "  -d DELIMITER      Character delimiting the input file."
 echo "  -q QUOTING_CHAR   Character used for quoting fileds in the"
 echo "                    file. If not supplied, assumed to be"
 echo "                    double quotes"
@@ -32,6 +32,8 @@ echo "  -r HEADER_FILE    Header file containing the column names"
 echo "                    for the delimited file. If not supplied,"
 echo "                    it is assumed that the first line of the"
 echo "                    input file contains the header information."
+echo "  -v REVERSE_MATCH  Output rows that do not match the given"
+echo "                    pattern."
             exit 0
             ;;
         d)

@@ -15,9 +15,9 @@ echo "                    file instead of a stream, as down sampling"
 echo "                    takes two passes over the data."
 echo
 echo "additionally, exactly one of the following is required:"
+echo "  -n N_RECORDS      Exact number of record to sample sample."
 echo "  -p PROPORTION     Numerical proportion of records to sample,"
 echo "                    for example .5 or .75."
-echo "  -n N_RECORDS      Exact number of record to sample sample."
 echo
 echo "optional arguments:"
 echo "  -r HEADER_FILE    Header file containing the column names"

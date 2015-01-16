@@ -22,9 +22,9 @@ echo "                     a list of column indicies may be"
 echo "                     supplied."
 echo
 echo "optional arguments:"
+echo "  -d DELIMITER      Character delimiting the input file."
 echo "  -f FILE           Delimited file. If not supplied input is"
 echo "                    read from the standard input stream."
-echo "  -d DELIMITER      Character delimiting the input file."
 echo "  -q QUOTING_CHAR   Character used for quoting fileds in the"
 echo "                    file. If not supplied, assumed to be"
 echo "                    double quotes"
@@ -33,7 +33,7 @@ echo "                    for the delimited file. If not supplied,"
 echo "                    it is assumed that the first line of the"
 echo "                    input file contains the header information."
 echo "  -R                Skip printing the table header."
-echo "  -U                Only print a list of unique values, not"
+echo "  -u                Only print a list of unique values, not"
 echo "                    counts."
             exit 0
             ;;
@@ -52,7 +52,7 @@ echo "                    counts."
         R)
             PRINTTABLEHEADER='false'
             ;;
-        U)
+        u)
             PRINTCOUNTS='false'
             ;;
     esac
