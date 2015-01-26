@@ -1,11 +1,10 @@
 *csv-chdelim*
 
-    csv-chdelim allows for changing the delimiter in a delimited file, the
-transformed data is then written to standard output.
+    csv-chdelim substitutes one delimiter for another in a delimited file. The
+transformed data is written to standard output.
 
 Examples
 --------
-
     
     We'll use the following csv to demonstrate csv-grep:
 

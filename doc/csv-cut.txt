@@ -3,7 +3,9 @@
 Overview
 --------
 
-    csv-cut allows for subsetting a delimited file columnwise, the selected 
+    csv-cut is a utility similar to unix cut, but specialized to work with
+delimited files.  It is aware of quoting behaviour, and directions can be given
+by referencing column names instead of indexes.  After cutting, the resulting
 data is then written to standard output.
 
 Examples
@@ -18,8 +20,8 @@ num,greeting,int
 0,"Hello, Dave.",3
 1,"Hello, \"Matt\", if that is your real name!",4
 
-The column names to cut out are supplied as the final positional arguments to
-csv-cut:
+The names of columns cut out are supplied as the final positional arguments to
+csv-cut (indices may alternatively be supplied if convenient):
 
 $csv-cut -f example.csv num int
 num,int

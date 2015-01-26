@@ -3,13 +3,14 @@
 Overview
 --------
 
-    csv-grep allows for subsetting the rows in a delimited file according to
-whether the datam in a specified column matches a given regular expression, the
-selected data is then written tostandard output.  It is aware of headers and
-knows not to attempt a match against the first row in a delimited file if that
-row is a header.
+    csv-grep is a utility similar to unix grep, but that operates on a specified
+column of a delimited file.  It is aware of headers, so the column to match
+against can be supplied by name.  Additionally, csv-grep knows not to attempt a
+match against the first row in a delimited file when that row is a header.  After
+rows are selected by matching the specified pattern in the specified column, 
+they are written to the standard output stream.
 
-    The regular expressions used by csv-grep are of the posix variety, just
+    The regular expressions used by csv-grep are of the posix variety, much like
 like those used by grep.
 
 Examples
@@ -58,6 +59,12 @@ $csv-grep -f example.csv -c greeting -p "Dave\|Matt"
 num,greeting,int
 0,"Hello, Dave.",3
 1,"Hello, \"Matt\", if that is your real name!",4
+
+Exact matches may be achieved with the ^ and $ symbols, which in this context
+operate on the granularity of the data in a field:
+
+$csv-grep -f example.csv -c greeting -p "^Hello\.$"
+1,"Hello.",1
 
 See Also
 --------
