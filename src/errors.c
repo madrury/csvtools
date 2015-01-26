@@ -59,3 +59,24 @@ void raise_regex_error(int errcd) {
     }
     exit(EXIT_FAILURE);
 }
+
+void raise_eol_error() {
+    fprintf(stderr, 
+        "End of line encountered without entering requested field.\n"
+    );
+    exit(EXIT_FAILURE);
+}
+
+void raise_oob_match_str_error() {
+    fprintf(stderr, 
+        "Index error in match string.  Perhaps the field is not well formed?\n"
+    );
+    exit(EXIT_FAILURE);
+}
+
+void raise_invalid_quoting_error() {
+    fprintf(stderr,
+        "End quote found with no begin quote.\n"
+    );
+    exit(EXIT_FAILURE);
+}
