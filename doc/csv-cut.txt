@@ -1,0 +1,49 @@
+*csv-cut*
+
+Overview
+--------
+
+    csv-cut allows for subsetting a delimited file columnwise, the selected 
+data is then written to standard output.
+
+Examples
+--------
+
+    We'll use the following csv to demonstrate csv-grep:
+
+$cat example.csv
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4
+
+The column names to cut out are supplied as the final positional arguments to
+csv-cut:
+
+$csv-cut -f example.csv num int
+num,int
+1,1
+0,2
+0,3
+1,4
+
+The -f argument is optional, if ommitted, csv-cut reads from standard input:
+
+cat example.csv | csv-cut num int
+num,int
+1,1
+0,2
+0,3
+1,4
+
+This allows for chaining of operations:
+cat example.csv | csv-cut num int | csv-grep -c num -p 1
+num,int
+1,1
+1,4
+
+See Also
+--------
+
+  csv-cut -h for a full list of options.

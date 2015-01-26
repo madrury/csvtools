@@ -1,0 +1,50 @@
+*csv-chdelim*
+
+    csv-chdelim allows for changing the delimiter in a delimited file, the
+transformed data is then written to standard output.
+
+Examples
+--------
+
+    
+    We'll use the following csv to demonstrate csv-grep:
+
+$cat example.csv
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4
+
+The -d option supplies the current delimiter in the file, and the -n option
+supplies the desired new delimiter:
+
+$csv-chdelim -f example.csv -d "," -n "|" 
+num|greeting|int
+1|"Hello."|1
+0|"Goodbye."|2
+0|"Hello, Dave."|3
+1|"Hello, \"Matt\", if that is your real name!"|4
+
+The -f option is optional, if ommitted, csv-chdelim reads from standard input:
+
+$cat example.csv | csv-chdelim -d "," -n "|" 
+num|greeting|int
+1|"Hello."|1
+0|"Goodbye."|2
+0|"Hello, Dave."|3
+1|"Hello, \"Matt\", if that is your real name!"|4
+
+This allows chaining of operations:
+
+$cat example.csv | csv-cut num int | csv-chdelim -d "," -n "|" 
+num|int
+1|1
+0|2
+0|3
+1|4
+
+See Also
+--------
+
+  csv-chdelim -h for a full list of options.

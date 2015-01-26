@@ -1,0 +1,65 @@
+*csv-grep*
+
+Overview
+--------
+
+    csv-grep allows for subsetting the rows in a delimited file according to
+whether the datam in a specified column matches a given regular expression, the
+selected data is then written tostandard output.  It is aware of headers and
+knows not to attempt a match against the first row in a delimited file if that
+row is a header.
+
+    The regular expressions used by csv-grep are of the posix variety, just
+like those used by grep.
+
+Examples
+--------
+
+    We'll use the following csv to demonstrate csv-grep:
+
+$cat example.csv
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4
+
+The -c option supplies a column to match within and the -p option supplies
+the pattern to match against:
+
+$csv-grep -f example.csv -c num -p 0
+num,greeting,int
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+
+The -f arugument is optional, if omitted, csv-grep reads from standard input:
+
+$cat example.csv | csv-grep -c num -p 0
+num,greeting,int
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+
+This allows searches to be chained:
+
+$cat example.csv | csv-grep -c greeting -p "Hello" | csv-grep -c num -p 1
+num,greeting,int
+1,"Hello.",1
+1,"Hello, \"Matt\", if that is your real name!",4
+
+Matches can be reversed with the -v flag:
+
+$cat example.csv | csv-grep -v -c greeting -p "Hello"
+num,greeting,int
+0,"Goodbye.",2
+
+More compilcated matches can be constructed with regular expression syntax:
+
+$csv-grep -f example.csv -c greeting -p "Dave\|Matt"
+num,greeting,int
+0,"Hello, Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4
+
+See Also
+--------
+
+    csv-grep -h for a full list of options.
