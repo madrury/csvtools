@@ -57,6 +57,19 @@ if [[ $PROP != '' && $NTOTAKE != '' ]]; then
     exit 1
 fi
 
+# OSX does not have shuf natively, but coreutils can provide gshuf
+if [[ $(command -v shuf) == "" ]]; then
+    if [[ $(command -v gshuf) == "" ]]; then
+        echo "No shuffle command available.  Aborting." >&2
+    else
+        shuf() {
+	    gshuf "$@"
+	}
+    fi
+fi
+
+# If a proportion of records is provided, we need to calculate the acutal
+# number.
 if [[ $NTOTAKE == '' ]]; then
     # Count the number of records in the file, then offset by one if
     # the header is included.
