@@ -118,7 +118,7 @@ fi
 
 # Output the table header
 if [[ $PRINTTABLEHEADER == 'true' ]]; then
-    if [[ $PRINTCOUNT == 'true' ]]; then
+    if [[ $PRINTCOUNTS == 'true' ]]; then
         printf "%-12s %s\n" "count" "$(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
     else
         printf "%s\n" "$(echo $HEADER | $SRCDIR/bin/cut "stdin" $DELIM $QUO $COLIDXS)"
