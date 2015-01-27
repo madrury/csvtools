@@ -1,0 +1,58 @@
+*csv-sample*
+
+Overview
+--------
+
+    csv-sample provides functionality for randomly sampling the rows
+of a delimited file.  Either an exact count of rows or a proportion of
+total rows may be requested.
+
+Examples
+--------
+
+    We'll use the following csv to demonstrate csv-sample:
+
+$cat example.csv
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4
+
+Sampling based on a number of output rows:
+
+$ csv-sample -f example.csv -n 2
+num,greeting,int
+1,"Hello, \"Matt\", if that is your real name!",4
+0,"Hello, Dave.",3
+
+Or a proportion of total rows:
+
+$ csv-sample -f example.csv -p .5
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+
+csv-sample rounds down:
+
+$ csv-sample -f example.csv -p .74
+num,greeting,int
+0,"Hello, Dave.",3
+0,"Goodbye.",2
+
+$ csv-sample -f test.csv -p .75
+num,greeting,int
+0,"Hello, Dave.",3
+0,"Goodbye.",2
+1,"Hello.",1
+
+$ csv-sample -f test.csv -p .76
+num,greeting,int
+1,"Hello, \"Matt\", if that is your real name!",4
+0,"Hello, Dave.",3
+0,"Goodbye.",2
+
+See Also
+--------
+
+    csv-grep -h for a full list of options.

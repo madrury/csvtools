@@ -1,0 +1,61 @@
+*csv-hist*
+
+Overview
+--------
+ 
+    csv-hist creates frequency counts from columns in delimited files.  It is
+similar in functionality to summary in R or proc freq in SAS.  The columns
+to match against are supplied as the final arguments, and supplying multiple
+column names will create a cross tabluation across those columns.
+
+Examples
+--------
+
+    We'll use the following csv to demonstrate csv-grep:
+
+$cat example.csv
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+0,"Hello, Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4
+
+Supplying a column name will tabulate and count the unique values in that
+column:
+
+$ csv-hist -f test.csv num
+count        num
+2            0
+2            1
+
+Supplying two columns will run a cross tabulation:
+
+$ csv-hist -f test.csv num int
+count        num,int
+1            1,1
+1            1,4
+1            0,2
+1            0,3
+
+The -f argument is optional, if ommitted csv-hist reads from standard input:
+
+$ cat test.csv | csv-hist num
+count        num
+2            0
+2            1
+
+This allows for chaining of operations:
+
+$ cat test.csv | csv-grep -c num -p 1 | csv-hist num
+count        num
+2            1
+
+$ cat test.csv | csv-grep -c greeting -p "Hello" | csv-hist num
+count        num
+1            0
+2            1
+
+See Also
+--------
+
+    csv-hist -h for a full list of options.
