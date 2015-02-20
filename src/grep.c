@@ -73,18 +73,21 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
  *   line: A string containing the contents of the line to be processed.
  *   line_len: The number oc characters in line.
  *   args: Structure containing the parameters recieved from the command line.
+ *
+ * Returns:
+ *   Boolean value, does the regex match or not?
  */
-    int field_idx = 0;    // Index of current field being processed. 
-    int line_p = 0;       // Index into the line.
-    int in_quotes = 0;    // Are we in a quoted field?
-    int quoted_field = 0; // Is the field we are matching against quoted?
-    char chr;             // Current char being processed.
-    char prev_ch = '\0';  // Previous char, to check for escapes.
-    int match;            // Did the regex match the line? 
+    int field_idx = 0;       // Index of current field being processed. 
+    int line_idx = 0;        // Character index into the line.
+    int in_quotes = 0;       // Are we currently in a quoted field?
+    int in_quoted_field = 0; // Is the field we are matching against quoted?
+    char chr;                // Current char being processed.
+    char prev_ch = '\0';     // Previous char, to check for escapes.
+    int match;               // Did the regex match the line? 
 
     // Search through the line until we enter the field to match against.
     while(1) {
-        chr = line[line_p];
+        chr = line[line_idx];
         // Edge case: we are matching against the first field, no need to
         // search through the line.
         if(args->field_idx == 0) {
@@ -98,56 +101,54 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
             field_idx++;
         }
         else if(chr == '\n') {
-            raise_eol_error();
+            raise_field_not_found_error();
         }
         // Check if we've enetered the correct field.  If so, increment
-        // the line pointer to the first char in that field and stop 
-        // searching.
+        // the line index to the first char in that field and stop searching.
         if(field_idx == args->field_idx) {
-            line_p++;
+            line_idx++;
             break;
         }
-        line_p++;
+        line_idx++;
     }
 
     // We may have entered a quoted field, if so, we do not want to include
     // the quoting chars wrapping the field in the buffer we match against.
-    if(line[line_p] == args->quo) {
-        quoted_field = 1;
+    if(line[line_idx] == args->quo) {
+        in_quoted_field = 1;
 	in_quotes = 1;
-	line_p++;
+	line_idx++;
     }
 
-    // line_p is now the beginning of the field to match against, so
+    // line_idx is now the beginning of the field to match against, so
     // extract the string in that field into match_str.
-    int i = 0;
+    int match_col_idx = 0;
     while(1) {
-        chr = line[line_p];
+        chr = line[line_idx];
         if(((chr == args->delim) && !in_quotes) || (chr == '\n')) {
             break;
         }
         if((chr == args->quo) && prev_ch != '\\') {
-	    if(in_quotes != 1) {
-	        raise_invalid_quoting_error();
-	    }
             in_quotes = 1 - in_quotes;
+	    // TODO: Check for invalid quoting.  I.e. the next char should
+	    //       be a dilimiter or a line ending.
         }
-	match_str[i] = chr;
+	match_str[match_col_idx] = chr;
 	prev_ch = chr;
-        line_p++; i++;
+        line_idx++; match_col_idx++;
     }
 
     // Better null terminate that string son.
-    match_str[i] = '\0';
+    match_str[match_col_idx] = '\0';
 
     // If the field we are matching against is quoted, we have a trailing
     // quote char in match_str.  Since we don't want matches to operate
     // on that trailing quote, we overwrite it will a null terminator.
-    if(quoted_field) {
-        if(i < 1) {
+    if(in_quoted_field) {
+        if(match_col_idx < 1) {
 	    raise_oob_match_str_error();
         }
-        match_str[i-1] = '\0';
+        match_str[match_col_idx - 1] = '\0';
     }
     // Now match_str is the string to match against.
     match = regexec(&args->regex, match_str, 0, NULL, 0);

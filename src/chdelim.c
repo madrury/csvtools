@@ -21,6 +21,7 @@ int main(int argc, char* argv[]){
     else {
         csv = fopen(argv[1], "r");
     }
+
     if(csv == NULL) {
         raise_file_error();
     }
@@ -34,6 +35,7 @@ int main(int argc, char* argv[]){
     char ch;
     char prev_ch = '\0';
     int inside_quote = 0;
+
     while((ch = getc(csv)) != EOF) {
         if(ch == quote_char) {
             // Check if this quote is escaped.

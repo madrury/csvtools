@@ -60,7 +60,7 @@ void raise_regex_error(int errcd) {
     exit(EXIT_FAILURE);
 }
 
-void raise_eol_error() {
+void raise_field_not_found_error() {
     fprintf(stderr, 
         "End of line encountered without entering requested field.\n"
     );
