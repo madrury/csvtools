@@ -99,7 +99,7 @@ fi
 if [[ $COLS =~ ^[0-9\ ]+$ ]]; then
     COLIDXS=$COLS
 else
-    COLIDXS=$(util/csv-getcolidxs -r $HEADER -d $DELIM ${@:1})
+    COLIDXS=$($SRCDIR/util/csv-getcolidxs -r $HEADER -d $DELIM ${@:1})
     if [[ $? != 0 ]]; then
         echo "csv-cut: Could not find indicies for some of the requested columns." >&2
         echo "Are you sure they all exist?" >&2

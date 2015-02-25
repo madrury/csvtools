@@ -103,7 +103,7 @@ fi
 if [[ $COL =~ ^[0-9\ ]+$ ]]; then
     COLIDX=$COL
 else
-    COLIDX=$(util/csv-getcolidx -r $HEADER -d $DELIM -c $COL)
+    COLIDX=$($SRCDIR/util/csv-getcolidx -r $HEADER -d $DELIM -c $COL)
     if [[ $? != 0 ]]; then
         echo "csv-grep: Could not find indicies for some of the requested columns." >&2
         echo "Are you sure they all exist?" >&2
