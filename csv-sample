@@ -68,8 +68,8 @@ if [[ $(command -v shuf) == "" ]]; then
         echo "No shuffle command available.  Aborting." >&2
     else
         shuf() {
-	    gshuf "$@"
-	}
+        gshuf "$@"
+    }
     fi
 fi
 
@@ -88,6 +88,11 @@ if [[ $NTOTAKE == '' ]]; then
     fi
     # We are calculating a floor here: cut -d. -f1 == floor
     NTOTAKE=$(echo "$NREC * $PROP" | bc -l | cut -d. -f1)
+    # It is possible we just cut off the decimal part of a number with 
+    # no integer part.
+    if [[ $NTOTAKE == '' ]]; then
+        NTOTAKE="0"
+    fi
 fi
 
 # Output the header if its neccessary
