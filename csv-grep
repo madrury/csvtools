@@ -3,7 +3,7 @@ SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
 QUO='"'
-while getopts h?d:f:c:p:r:v? OPT; do
+while getopts h?d:q:f:c:p:r:v? OPT; do
     case $OPT in
         \?|h)
 echo "csv-grep: Output rows in a csv where the datum in a specified"
@@ -67,6 +67,7 @@ if [[ $COL == '' ]]; then
 fi
 if [[ $PATTERN == '' ]]; then
     echo "csv-grep: Argument -p required." >&2
+    echo "csv-grep: If you are attempting to match against an empty string, use '^$'."
     exit 1
 fi
 # Reverse match is optional.
