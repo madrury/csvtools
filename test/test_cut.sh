@@ -1,12 +1,7 @@
 SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SRCDIR/test_functions.sh
 
-test_equal() {
-    if [ "$1" == "$2" ]; then
-        echo "Passed."
-    else
-        echo "Failed. Expected: $1 Got: $2"
-    fi
-}
+echo "Running csv-cut tests..."
 
 # Basic functionality
 EXPECTED=$(printf "int1\n1\n1\n1\n\n")
@@ -36,7 +31,7 @@ GOT=$(csv-cut -R -f data/empty_field_test.csv int1)
 test_equal "$EXPECTED" "$GOT"
 
 # Quoted field
-EXPECTED=$(printf "greeting\n\"Hello.\"\n\"Goodbye.\"\n\"Hello, Dave.\"\n\"Hello, \\\\\"Matt\\\\\", if that is your real name!\"")
+EXPECTED=$(printf "greeting\n\"Hello.\"\n\"Goodbye.\"\n\"Hello. Dave.\"\n\"Hello, \\\\\"Matt\\\\\", if that is your real name!\"")
 GOT=$(csv-cut -f data/quoting_test.csv greeting) 
 test_equal "$EXPECTED" "$GOT"
 
