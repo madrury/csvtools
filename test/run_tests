@@ -1,0 +1,5 @@
+./test_cut.sh
+./test_grep.sh
+./test_chdelim.sh
+./test_set.sh
+./test_sample.sh

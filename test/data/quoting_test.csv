@@ -1,0 +1,5 @@
+num,greeting,int
+1,"Hello.",1
+0,"Goodbye.",2
+0,"Hello. Dave.",3
+1,"Hello, \"Matt\", if that is your real name!",4

@@ -1,4 +1,5 @@
 #! /bin/bash
+SRCDIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DELIM=','
 while getopts h?r:d:c: OPT; do
@@ -36,7 +37,7 @@ OUTSTR=""
 # Iteratively get the index of the columns requested, and join them into
 # a comma seperated string.
 for COLNM in $COLS; do
-  COLIDX=$(csv-getcolidx -d $DELIM -r $HEADER -c $COLNM)
+  COLIDX=$($SRCDIR/csv-getcolidx -d $DELIM -r $HEADER -c $COLNM)
   if [[ $? != 0 ]]; then
       echo "csv-getcolidxs: Field $COLNM not found, terminating."
       exit 1

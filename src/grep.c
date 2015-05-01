@@ -116,8 +116,8 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
     // the quoting chars wrapping the field in the buffer we match against.
     if(line[line_idx] == args->quo) {
         in_quoted_field = 1;
-	in_quotes = 1;
-	line_idx++;
+    in_quotes = 1;
+    line_idx++;
     }
 
     // line_idx is now the beginning of the field to match against, so
@@ -130,23 +130,24 @@ int match_line(char match_str[], char* line, int line_len, arguments* args) {
         }
         if((chr == args->quo) && prev_ch != '\\') {
             in_quotes = 1 - in_quotes;
-	    // TODO: Check for invalid quoting.  I.e. the next char should
-	    //       be a dilimiter or a line ending.
+        // TODO: Check for invalid quoting.  I.e. the next char should
+        //       be a dilimiter or a line ending.
         }
-	match_str[match_col_idx] = chr;
-	prev_ch = chr;
+    match_str[match_col_idx] = chr;
+    prev_ch = chr;
         line_idx++; match_col_idx++;
     }
 
     // Better null terminate that string son.
     match_str[match_col_idx] = '\0';
+    // printf("Match string: %s\n", match_str);
 
     // If the field we are matching against is quoted, we have a trailing
     // quote char in match_str.  Since we don't want matches to operate
     // on that trailing quote, we overwrite it will a null terminator.
     if(in_quoted_field) {
         if(match_col_idx < 1) {
-	    raise_oob_match_str_error();
+        raise_oob_match_str_error();
         }
         match_str[match_col_idx - 1] = '\0';
     }
