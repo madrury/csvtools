@@ -120,6 +120,7 @@ which allows tools to be chained together:
     0,3
 
 Acknowledgements:
+-----------------
 
 Thanks to my employer, Allstate Insurance, for allowing me time to work on this, and the freedom to redistribute it.
 
