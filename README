@@ -5,10 +5,10 @@ Introduction
 ------------
 
   csvtools is simple, fast library for working with delimited text files.  It
-provides command line tools for prerforming common tasks, such as subsetting, 
+provides command line tools for preforming common tasks, such as subsetting, 
 searching and cutting.
 
-  The following tools are incuded:
+  The following tools are included:
 
   - csv-chdelim: Change the delimiter in a text file.
   - csv-cut: Output only a requested subset of columns from a delimited
@@ -119,7 +119,7 @@ which allows tools to be chained together:
     0,2
     0,3
 
-Acknoledgements:
+Acknowledgements:
 
     Thanks to my employer, Allstate Insurance, for allowing me time to work on this, and the freedom to redistribute it.
     Thanks to Robert Olive and Sam Kim for thier valuable feedback.
