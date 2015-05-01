@@ -121,5 +121,6 @@ which allows tools to be chained together:
 
 Acknowledgements:
 
-    Thanks to my employer, Allstate Insurance, for allowing me time to work on this, and the freedom to redistribute it.
-    Thanks to Robert Olive and Sam Kim for thier valuable feedback.
+Thanks to my employer, Allstate Insurance, for allowing me time to work on this, and the freedom to redistribute it.
+
+Thanks to Robert Olive and Sam Kim for thier valuable feedback.
