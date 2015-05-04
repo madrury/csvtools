@@ -22,6 +22,15 @@ searching and cutting.
 
   csvtools is written in a combination of C and bash to be as fast as possible.
 
+Why Csvtoos?
+------------
+
+  csvtools was built by the author at Allstate Insurace to process massive csv
+files used in auto insurance predictive modeling projects.  It was designed to
+be smaller and more agile than other tools (between 80 and 800 times faster
+than csvkit).  It was designed to be composable to support sophisticated 
+command line and map-reduce workflows.
+
 Building
 --------
 
