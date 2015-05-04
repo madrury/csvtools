@@ -25,7 +25,7 @@ searching and cutting.
 Why Csvtoos?
 ------------
 
-  csvtools was built by the author at Allstate Insurace to process massive csv
+  csvtools was built by the author at Allstate Insurance to process massive csv
 files used in auto insurance predictive modeling projects.  It was designed to
 be smaller and more agile than other tools (between 80 and 800 times faster
 than csvkit).  It was designed to be composable to support sophisticated 
@@ -127,6 +127,8 @@ which allows tools to be chained together:
     $ cat example.csv | csv-cut num int | csv-grep -c num -p 0
     0,2
     0,3
+
+Csvtools is aware of quoting, see the `-q` argument to many of the tools.  Csvtools is aware of alternate delimiters, see the `-d` arhument to many of the tools.  All of the tools has detailed help available, try the `-h` argument to any tool.
 
 Acknowledgements:
 -----------------
