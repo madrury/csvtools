@@ -27,14 +27,14 @@ Why Csvtoos?
 
   csvtools was built by the author at Allstate Insurance to process massive csv
 files used in auto insurance predictive modeling projects.  It was designed to
-be smaller and more agile than other tools (between 80 and 800 times faster
-than csvkit) and to be useful in sophisticated command line and hadoop
-map-reduce workflows.
+be smaller and more agile than other tools and to be useful in sophisticated
+command line and hadoop map-reduce workflows.
 
 Is It Fast?
 -----------
 
-  Its really quite fast.  Comapred to csvkit usuing an 80M csv:
+  It is really quite fast.  Comapred to csvkit usuing an 80M pipe delimited
+file:
 
 Cutting is over 20 times faster:
 
@@ -71,8 +71,11 @@ Examples
     0,"Hello, Dave.",3
     1,"Hello, \"Matt\", if that is your real name!",4
 
-Note that the header may be included as the first line in the file when 
-working with csvtools, and that files may include quoting characters.
+  Note that the header may be included as the first line in the file when
+working with csvtools or supplied as a seperate file with the `-r` options.
+Csvtools is aware of quoting, see the `-q` argument to many of the tools.
+Csvtools is also aware of alternate delimiters, see the `-d` arhument to many of the
+tools.  All of the tools has detailed help available with `-h`.
 
 Csvtools has utilities for: 
 
@@ -122,7 +125,7 @@ Random sampling:
 
 Differences:
  
-    $csv-diff example.csv example-sample.csv
+    $csv-set -d example.csv example-sample.csv
     num,greeting,int
     1,"Hello.",1
     1,"Hello, \"Matt\", if that is your real name!",4
@@ -150,8 +153,6 @@ which allows tools to be chained together:
     $ cat example.csv | csv-cut num int | csv-grep -c num -p 0
     0,2
     0,3
-
-Csvtools is aware of quoting, see the `-q` argument to many of the tools.  Csvtools is aware of alternate delimiters, see the `-d` arhument to many of the tools.  All of the tools has detailed help available, try the `-h` argument to any tool.
 
 Acknowledgements:
 -----------------
