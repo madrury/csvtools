@@ -28,8 +28,31 @@ Why Csvtoos?
   csvtools was built by the author at Allstate Insurance to process massive csv
 files used in auto insurance predictive modeling projects.  It was designed to
 be smaller and more agile than other tools (between 80 and 800 times faster
-than csvkit).  It was designed to be composable to support sophisticated 
-command line and map-reduce workflows.
+than csvkit) and to be useful in sophisticated command line and hadoop
+map-reduce workflows.
+
+Is It Fast?
+-----------
+
+  Its really quite fast.  Comapred to csvkit usuing an 80M csv:
+
+Cutting is over 20 times faster:
+
+    # csvkit
+    $ time csvcut -d '|' -c 'DOLLAR' random.csv > /dev/null
+    real    0m12.873
+    #csvtools
+    $$ time csv-cut -f random.csv -d '|' 'DOLLAR' > /dev/null
+    real    0m0.589s
+
+Searching is also over 20 times faster:
+
+     # csvkit
+     $ time csvgrep -d '|' -c 'ADDR' -r '.*Rd\..*' random.csv > /dev/null
+     real    0m13.721s
+     # csvtools
+     $ time csv-grep -f random.csv -d '|' -p "Rd\\." -c ADDR > /dev/null
+     real    0m0.548s
 
 Building
 --------
@@ -39,7 +62,7 @@ Building
 Examples
 --------
 
-  We will use the following example to demonstrate csvtools.
+  We will use the following example delimeited file to demonstrate csvtools.
 
     $cat example.csv
     num,greeting,int
