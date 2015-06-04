@@ -22,7 +22,7 @@ searching and cutting.
 
   csvtools is written in a combination of C and bash to be as fast as possible.
 
-Why Csvtoos?
+Why xsvtools?
 ------------
 
   csvtools was built by the author at Allstate Insurance to process massive csv
@@ -73,11 +73,11 @@ Examples
 
   Note that the header may be included as the first line in the file when
 working with csvtools or supplied as a seperate file with the `-r` options.
-Csvtools is aware of quoting, see the `-q` argument to many of the tools.
-Csvtools is also aware of alternate delimiters, see the `-d` arhument to many of the
+csvtools is aware of quoting, see the `-q` argument to many of the tools.
+csvtools is also aware of alternate delimiters, see the `-d` arhument to many of the
 tools.  All of the tools has detailed help available with `-h`.
 
-Csvtools has utilities for: 
+csvtools has utilities for: 
 
 Changing the delimiter:
 
