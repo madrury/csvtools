@@ -41,7 +41,7 @@ Cutting is over 20 times faster:
     # csvkit
     $ time csvcut -d '|' -c 'DOLLAR' random.csv > /dev/null
     real    0m12.873
-    #csvtools
+    # csvtools
     $$ time csv-cut -f random.csv -d '|' 'DOLLAR' > /dev/null
     real    0m0.589s
 
@@ -62,7 +62,7 @@ Building
 Examples
 --------
 
-  We will use the following example delimeited file to demonstrate csvtools.
+  We will use the following example delimited file to demonstrate csvtools.
 
     $cat example.csv
     num,greeting,int
@@ -159,4 +159,4 @@ Acknowledgements:
 
 Thanks to my employer, Allstate Insurance, for allowing me time to work on this, and the freedom to redistribute it.
 
-Thanks to Robert Olive and Sam Kim for thier valuable feedback.
+Thanks to Robert Olive and Sam Kim for their valuable feedback.
