@@ -5,7 +5,7 @@ Introduction
 ------------
 
   csvtools is simple, fast library for working with delimited text files.  It
-provides command line tools for preforming common tasks, such as subsetting, 
+provides command line tools for performing common tasks, such as subsetting, 
 searching and cutting.
 
   The following tools are included:
